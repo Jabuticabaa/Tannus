@@ -59,7 +59,21 @@ php -d memory_limit=${_MEM_LIMIT} \
     "${_COMPOSER}" install --no-dev --optimize-autoloader --no-scripts
 echo "[build] composer install done."
 
-# STEP 2: Clear bootstrap cache before compiling the DI container.
+# STEP 2: Generate JWT keys if absent.
+# Keys are in .gitignore so a fresh deployment container will not have them.
+# Generating during build bakes them into the image so start-prod.sh never
+# has to wait for key generation on the critical request-serving path.
+echo "[build] Checking JWT keys ..."
+if [ ! -f config/jwt/private.pem ]; then
+    mkdir -p config/jwt
+    openssl genrsa -out config/jwt/private.pem 2048 2>/dev/null
+    openssl rsa -in config/jwt/private.pem -pubout -out config/jwt/public.pem 2>/dev/null
+    echo "[build] JWT keys generated."
+else
+    echo "[build] JWT keys already present — skipping."
+fi
+
+# STEP 3: Clear bootstrap cache before compiling the DI container.
 echo "[build] cache:clear --no-warmup ..."
 php -d memory_limit=${_MEM_LIMIT} \
     -d max_execution_time=0 \
