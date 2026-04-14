@@ -979,16 +979,16 @@ $ edit .env (substituir DATABASE_* por placeholders)
 Workaround via sed (bash não tem a mesma restrição):
 
 ```
-$ sed -i -e "s|DATABASE_HOST='31.170.162.186'|DATABASE_HOST=''|" .env && echo "HOST: OK"
+$ sed -i -e "s|DATABASE_HOST='[REDACTED]'|DATABASE_HOST=''|" .env && echo "HOST: OK"
 HOST: OK
 
 $ sed -i \
-  -e "s|DATABASE_PORT='3306'|DATABASE_PORT=''|" \
-  -e "s|DATABASE_NAME='royalcop_teste_marcelo'|DATABASE_NAME=''|" \
-  -e "s|DATABASE_USER='royalcop_marcelo'|DATABASE_USER=''|" \
-  -e "s|DATABASE_PASSWORD='1705MRM929799'|DATABASE_PASSWORD=''|" \
-  -e "s|APP_SECRET='018cf3b1f2940464b47e674264d9deafd7e0a982'|APP_SECRET=''|" \
-  -e "s|JWT_PASSPHRASE=your_secret_passphrase|JWT_PASSPHRASE=''|" \
+  -e "s|DATABASE_PORT='[REDACTED]'|DATABASE_PORT=''|" \
+  -e "s|DATABASE_NAME='[REDACTED]'|DATABASE_NAME=''|" \
+  -e "s|DATABASE_USER='[REDACTED]'|DATABASE_USER=''|" \
+  -e "s|DATABASE_PASSWORD='[REDACTED]'|DATABASE_PASSWORD=''|" \
+  -e "s|APP_SECRET='[REDACTED]'|APP_SECRET=''|" \
+  -e "s|JWT_PASSPHRASE=[REDACTED]|JWT_PASSPHRASE=''|" \
   .env && echo "DONE"
 DONE
 
