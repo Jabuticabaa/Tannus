@@ -948,12 +948,12 @@ Diagnóstico:
 
 ```
 $ openssl rand -hex 32
-1549b28bf54fdd8f58da8de85e36935bd11aa0e16d00da8b81e8a1bb11387378
+[REDACTED — valor armazenado no Replit Secret JWT_PASSPHRASE]
 ```
 
 Tentativa inicial via shared env var (reverted — expunha o valor em .replit versionado):
 ```
-$ setEnvVars({ values: { JWT_PASSPHRASE: "1549b28b..." }, environment: "shared" })
+$ setEnvVars({ values: { JWT_PASSPHRASE: "[REDACTED]..." }, environment: "shared" })
 → { environment: "shared", keys: ["JWT_PASSPHRASE"] } [REVERTIDO]
 ```
 
@@ -993,13 +993,13 @@ $ sed -i \
 DONE
 
 $ grep -n "DATABASE_HOST\|DATABASE_PORT\|DATABASE_NAME\|DATABASE_USER\|DATABASE_PASSWORD\|APP_SECRET\|JWT_PASSPHRASE" .env
-11:DATABASE_HOST=''
-12:DATABASE_PORT=''
-13:DATABASE_NAME=''
-14:DATABASE_USER=''
-15:DATABASE_PASSWORD=''
-20:APP_SECRET=''
-56:JWT_PASSPHRASE=''
+11:DATABASE_HOST='<configurar_via_Replit_Secret>'
+12:DATABASE_PORT='<configurar_via_Replit_Secret>'
+13:DATABASE_NAME='<configurar_via_Replit_Secret>'
+14:DATABASE_USER='<configurar_via_Replit_Secret>'
+15:DATABASE_PASSWORD='<configurar_via_Replit_Secret>'
+20:APP_SECRET='<configurar_via_Replit_Secret>'
+56:JWT_PASSPHRASE='<configurar_via_Replit_Secret>'
 ```
 
 ✅ .env: 7 linhas com credenciais neutralizadas — todos os valores substituídos por strings vazias.
