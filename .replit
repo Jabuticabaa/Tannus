@@ -54,9 +54,5 @@ PHP_INI_SCAN_DIR = "/nix/store/8xs6a2mh8vhb0r5ds4wh5nm6a59x66z6-php-with-extensi
 localPort = 5000
 externalPort = 80
 
-[[ports]]
-localPort = 8080
-externalPort = 8080
-
 [objectStorage]
 defaultBucketID = "replit-objstore-023be920-4f7f-4732-8f41-08729241e402"
