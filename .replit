@@ -47,6 +47,7 @@ APP_ENV = "prod"
 [userenv.shared]
 PHP_MEMORY_LIMIT = "512M"
 COMPOSER_MEMORY_LIMIT = "-1"
+JWT_PASSPHRASE = "1549b28bf54fdd8f58da8de85e36935bd11aa0e16d00da8b81e8a1bb11387378"
 
 [[ports]]
 localPort = 5000
