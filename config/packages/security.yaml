@@ -129,6 +129,8 @@ security:
                 - Chamilo\CoreBundle\Security\Authenticator\Ldap\LdapAuthenticator
 
     access_control:
+        - { path: ^/TannusAI, roles: PUBLIC_ACCESS }
+        - { path: ^/TannusIA, roles: PUBLIC_ACCESS }
         - { path: ^/scim/v2, roles: PUBLIC_ACCESS }
         - { path: ^/login/token/check, roles: PUBLIC_ACCESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }

@@ -11,12 +11,6 @@ set -e
 _PORT="${PORT:-5000}"
 echo "[prod] Starting Chamilo 2.x (APP_ENV=${APP_ENV:-prod}, port=${_PORT})"
 
-# Harden core Symfony config directories (read-only).
-chmod 0555 \
-    config/packages \
-    config/routes \
-    2>/dev/null || true
-
 # Ensure runtime-writable directories exist.
 mkdir -p var/log
 chmod 0775 var/log 2>/dev/null || true
