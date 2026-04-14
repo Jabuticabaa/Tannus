@@ -223,6 +223,10 @@ services:
         tags:
             - { name: kernel.event_subscriber, dispatcher: security.event_dispatcher.main }
 
+    Chamilo\CoreBundle\Service\DocxConverterService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
 cocur_slugify:
     lowercase: true
 

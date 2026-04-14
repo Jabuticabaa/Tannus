@@ -132,3 +132,4 @@ criaria conflito e regressões.
 | 1.1 | 2026-04-14 | Agent | FASE 1 auditoria: novos gaps xsl, migrations version table, race condition, CLI timezone |
 | 1.2 | 2026-04-14 | Agent | FASE 2.2 (Task #8): Gap #4 resolvido — MySQL timezone alinhada com PHP via `-03:00` offset em start.sh |
 | 1.3 | 2026-04-14 | Agent | FASE 2.1 (Task #10): Race condition corrigida — build síncrono + exit code check |
+| 1.4 | 2026-04-14 | Agent | Task #20: Feature docx-to-web — rota /TannusIA + /document/upload + mammoth conversion |

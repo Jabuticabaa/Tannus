@@ -10,6 +10,12 @@ Nenhum ✅ sem saída verificada. Os blocos abaixo são transcrições literais 
 
 | Data | Fase | Ação | Arquivos Afetados | Resultado Real | Fonte |
 |------|------|------|-------------------|----------------|-------|
+| 2026-04-14 | docx-to-web F0 | Diagnóstico de ambiente | `src/CoreBundle/Controller/`, `config/services.yaml`, `config/routes.yaml`, `var/templates/`, `webpack.config.js` | Controllers usam PHP 8 Attribute routing, auto-discovered via `services.yml`; templates em `var/templates/` (twig.yaml); base.html.twig simples | Task #20 |
+| 2026-04-14 | docx-to-web F1 | Instalar mammoth + criar script conversão | `package.json`, `scripts/mammoth_convert.js`, `public/uploads/documents/.gitkeep` | `npm install mammoth` OK; `node scripts/mammoth_convert.js` converte .docx para HTML (4.6MB com imagens base64) | Task #20 |
+| 2026-04-14 | docx-to-web F2 | Criar TannusIaController + route `/TannusIA` | `src/CoreBundle/Controller/TannusIaController.php` | `php bin/console debug:router tannus_ia` → Path `/TannusIA`, Controller `TannusIaController::view()` | Task #20 |
+| 2026-04-14 | docx-to-web F2 | Criar DocumentPageController + route `/document/upload` | `src/CoreBundle/Controller/DocumentPageController.php` | `curl -s -o /dev/null -w "%{http_code}" /document/upload` → `200` | Task #20 |
+| 2026-04-14 | docx-to-web F3 | Template Twig + CSS + sumário scrollspy | `var/templates/tannus_ia/view.html.twig`, `var/templates/document_page/upload.html.twig`, `assets/css/document-page.css`, `webpack.config.js` | Hero + sidebar sticky + TOC IntersectionObserver + doc-prose + FAB mobile + dark mode | Task #20 |
+| 2026-04-14 | docx-to-web F5 | Teste HTTP real | — | `curl -s -o /dev/null -w "%{http_code}" /TannusIA` → `200`; Headings h2-h4 com IDs para scrollspy confirmados | Task #20 |
 | 2026-04-14 | F0 | `ls -la public/main/install/` | — | `✅ /install/ não encontrado` | docs.chamilo.org |
 | 2026-04-14 | F0 | `curl … /main/install/index.php` | — | `404` | INSTRUÇÃO MESTRA §T0.1 |
 | 2026-04-14 | F0 | `curl … /` (antes da ação) | — | `200` | — |

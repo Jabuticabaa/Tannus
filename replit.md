@@ -16,7 +16,12 @@ Chamilo is an open-source Learning Management System (LMS) and e-learning collab
 - `public/` - Web root (entry point index.php, legacy PHP, build assets)
 - `config/` - Symfony configuration
 - `translations/` - i18n translation files
-- `var/` - Cache and logs
+- `var/` - Cache, logs, and Twig templates (var/templates/)
+- `scripts/` - Node.js utility scripts (mammoth_convert.js for docx→HTML)
+
+## Custom Routes
+- `/TannusIA` - Plano de negócios Tannus IA + Mega Sistema (controller: TannusIaController)
+- `/document/upload` - Upload genérico de .docx (controller: DocumentPageController)
 
 ## Running the App
 The `start.sh` script handles everything:

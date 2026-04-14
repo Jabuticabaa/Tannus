@@ -145,3 +145,22 @@ Usuário → :80 (Replit proxy) → :5000 (php -S) → public/index.php (Symfony
 Todas as extensões obrigatórias para Chamilo 2.x estão presentes:
 `curl`, `dom`, `fileinfo`, `gd`, `intl`, `json`, `mbstring`, `mysqli`,
 `pdo_mysql`, `SimpleXML`, `xml`, `xmlreader`, `xmlwriter`, `zip`, `Zend OPcache`
+
+---
+
+## Feature: docx-to-web (Task #20)
+
+Converte documentos `.docx` em páginas web institucionais responsivas.
+
+| Componente | Arquivo | Função |
+|---|---|---|
+| Conversão | `scripts/mammoth_convert.js` | Script Node.js (mammoth) para converter .docx → HTML semântico |
+| Service | `src/CoreBundle/Service/DocxConverterService.php` | Serviço PHP que orquestra a conversão via mammoth, extrai título/subtítulo/TOC |
+| Controller | `src/CoreBundle/Controller/TannusIaController.php` | Rota `GET /TannusIA` — renderiza plano de negócios Tannus IA |
+| Controller | `src/CoreBundle/Controller/DocumentPageController.php` | Rota `GET|POST /document/upload` — upload genérico de .docx (CSRF, MIME, size validation) |
+| Template | `var/templates/tannus_ia/view.html.twig` | Página com hero, sidebar TOC (scrollspy), conteúdo doc-prose |
+| Template | `var/templates/document_page/upload.html.twig` | Formulário de upload de documentos |
+| CSS | `assets/css/document-page.css` | Estilos: hero, grid layout, sidebar sticky, TOC, tabelas responsivas, FAB mobile, dark mode |
+| Dependência | `mammoth` (npm) | Conversão .docx → HTML |
+
+Fluxo: Controller → DocxConverterService → mammoth (via shell_exec + Node.js) → processa HTML (IDs para scrollspy, tabelas responsivas) → Twig template. Se conversão falhar, exibe página de erro (503). Upload armazena em `var/uploads/documents/` (fora do web root).

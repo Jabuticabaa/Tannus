@@ -43,6 +43,7 @@ Encore.addEntry("legacy_app", "./assets/js/legacy/app.js")
   .addStyleEntry("css/print", "./assets/css/print.scss")
   .addStyleEntry("css/responsive", "./assets/css/responsive.scss")
   .addStyleEntry("css/scorm", "./assets/css/scorm.scss")
+  .addStyleEntry("css/document-page", "./assets/css/document-page.css")
 
   .enableSingleRuntimeChunk()
   .enableSourceMaps(!isProd)
