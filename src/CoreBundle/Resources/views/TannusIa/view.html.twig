@@ -1,78 +1,198 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ title ?: 'Tannus AI' }}{% endblock %}
+{% block title %}Tannus IA — Inteligência Artificial{% endblock %}
 
 {% block stylesheets %}
-<style>
-    :root {
-        --tannus-primary: #1a237e;
-        --tannus-accent: #3949ab;
-        --tannus-bg: #f5f5f5;
-        --tannus-sidebar-bg: #fff;
-        --tannus-text: #333;
-    }
-    * { box-sizing: border-box; }
-    body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: var(--tannus-text); background: var(--tannus-bg); }
-    .tannus-wrapper { display: flex; min-height: 100vh; }
-    .tannus-sidebar {
-        width: 280px; min-width: 280px; background: var(--tannus-sidebar-bg);
-        border-right: 1px solid #ddd; padding: 24px 16px; position: sticky;
-        top: 0; height: 100vh; overflow-y: auto;
-    }
-    .tannus-sidebar h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--tannus-primary); margin: 0 0 16px; }
-    .tannus-sidebar ul { list-style: none; padding: 0; margin: 0; }
-    .tannus-sidebar li { margin-bottom: 4px; }
-    .tannus-sidebar a {
-        display: block; padding: 6px 10px; border-radius: 4px; text-decoration: none;
-        color: #555; font-size: 13px; transition: background .2s, color .2s;
-    }
-    .tannus-sidebar a:hover { background: #e8eaf6; color: var(--tannus-primary); }
-    .tannus-sidebar .toc-level-3 { padding-left: 24px; font-size: 12px; }
-    .tannus-sidebar .toc-level-4 { padding-left: 40px; font-size: 12px; }
-    .tannus-main { flex: 1; padding: 40px 48px; max-width: 900px; }
-    .tannus-header { margin-bottom: 32px; border-bottom: 2px solid var(--tannus-primary); padding-bottom: 16px; }
-    .tannus-header h1 { margin: 0 0 8px; font-size: 28px; color: var(--tannus-primary); }
-    .tannus-header p { margin: 0; font-size: 16px; color: #666; }
-    .tannus-content h2 { font-size: 22px; color: var(--tannus-primary); margin-top: 40px; border-bottom: 1px solid #ccc; padding-bottom: 8px; }
-    .tannus-content h3 { font-size: 18px; color: var(--tannus-accent); margin-top: 28px; }
-    .tannus-content h4 { font-size: 16px; margin-top: 20px; }
-    .tannus-content p { line-height: 1.7; margin: 12px 0; }
-    .tannus-content img { max-width: 100%; height: auto; border-radius: 4px; margin: 16px 0; }
-    .tannus-content .table-responsive { overflow-x: auto; margin: 16px 0; }
-    .tannus-content table { border-collapse: collapse; width: 100%; font-size: 14px; }
-    .tannus-content th, .tannus-content td { border: 1px solid #ddd; padding: 10px 12px; text-align: left; }
-    .tannus-content th { background: var(--tannus-primary); color: #fff; }
-    .tannus-content tr:nth-child(even) { background: #f9f9f9; }
-    @media (max-width: 768px) {
-        .tannus-wrapper { flex-direction: column; }
-        .tannus-sidebar { width: 100%; min-width: auto; height: auto; position: static; border-right: none; border-bottom: 1px solid #ddd; }
-        .tannus-main { padding: 24px 16px; }
-    }
-</style>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@700,900&f[]=general-sans@400,500,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/tannus-design-system.css">
 {% endblock %}
 
 {% block body %}
-<div class="tannus-wrapper">
-    <nav class="tannus-sidebar">
-        <h2>Sumário</h2>
-        <ul>
-            {% for item in toc %}
-                <li>
-                    <a href="#{{ item.id }}" class="toc-level-{{ item.level }}">{{ item.text }}</a>
-                </li>
-            {% endfor %}
-        </ul>
-    </nav>
-    <div class="tannus-main">
-        {% if title or subtitle %}
-        <div class="tannus-header">
-            {% if title %}<h1>{{ title }}</h1>{% endif %}
-            {% if subtitle %}<p>{{ subtitle }}</p>{% endif %}
-        </div>
-        {% endif %}
-        <div class="tannus-content">
-            {{ html_content|raw }}
-        </div>
+<div class="tannus-page">
+
+<nav class="tannus-nav">
+  <div class="tannus-nav__inner">
+    <img src="/img/tannus-logo.png" alt="Tannus" class="tannus-nav__logo" width="120" height="30" loading="eager">
+    <ul class="tannus-nav__links">
+      <li><a href="#capacidades">Capacidades</a></li>
+      <li><a href="#metricas">Métricas</a></li>
+      <li><a href="#como-funciona">Como funciona</a></li>
+      <li><a href="#acesso">Acesso rápido</a></li>
+    </ul>
+    <div class="tannus-nav__actions">
+      <button type="button" class="theme-toggle" id="themeToggle" aria-label="Alternar tema">
+        <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+      <a href="/login" class="btn-primary" style="font-size:0.8125rem;padding:0.5rem 1rem;">Entrar</a>
     </div>
+  </div>
+</nav>
+
+<section class="tannus-hero">
+  <div class="tannus-hero__grid-bg"></div>
+  <div class="tannus-hero__glow"></div>
+  <div class="tannus-container tannus-hero__content">
+    <img src="/img/tannus-logo.png" alt="Tannus Inteligência Artificial" class="tannus-hero__logo" width="72" height="72" loading="eager">
+    <div class="tannus-hero__badge">
+      <span class="tannus-hero__badge-dot"></span>
+      Sistema Ativo
+    </div>
+    <h1 class="tannus-hero__headline">Tannus <span>IA</span></h1>
+    <p class="tannus-hero__sub">Inteligência artificial integrada ao seu ambiente de aprendizagem. Automatize, personalize e potencialize resultados educacionais.</p>
+    <div class="tannus-hero__ctas">
+      <a href="/login" class="btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Acessar plataforma
+      </a>
+      <a href="#capacidades" class="btn-secondary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+        Explorar
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="tannus-section" id="capacidades">
+  <div class="tannus-container">
+    <span class="tannus-section__label" data-num="01">Capacidades</span>
+    <h2 class="tannus-section__title">O que a Tannus IA faz por você</h2>
+    <p class="tannus-section__subtitle">Recursos de inteligência artificial projetados para transformar a experiência educacional.</p>
+
+    <div class="caps-grid" style="margin-top:2.5rem;">
+      <div class="cap-card cap-card--featured">
+        <svg class="cap-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 1 4 4c0 1.95-1.4 3.58-3.25 3.93"/><path d="M8.56 9.8A3.99 3.99 0 0 1 8 6a4 4 0 0 1 4-4"/><path d="M17 14h.39a2 2 0 0 1 1.94 2.49l-1.46 5.86A2 2 0 0 1 15.93 24H8.07a2 2 0 0 1-1.94-1.65l-1.46-5.86A2 2 0 0 1 6.61 14H7"/><line x1="12" y1="10" x2="12" y2="16"/></svg>
+        <h3 class="cap-card__title">Aprendizado adaptativo em tempo real</h3>
+        <p class="cap-card__desc">A IA analisa o desempenho individual de cada aluno e ajusta automaticamente a trilha de aprendizagem, recomendando conteúdos, exercícios e revisões personalizadas.</p>
+      </div>
+      <div class="cap-card">
+        <svg class="cap-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+        <h3 class="cap-card__title">Geração de conteúdo</h3>
+        <p class="cap-card__desc">Criação assistida de questões, resumos e planos de aula a partir do material existente na plataforma.</p>
+      </div>
+      <div class="cap-card">
+        <svg class="cap-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+        <h3 class="cap-card__title">Análise preditiva</h3>
+        <p class="cap-card__desc">Identifica alunos em risco de evasão e sugere intervenções pedagógicas antes que o desengajamento aconteça.</p>
+      </div>
+      <div class="cap-card">
+        <svg class="cap-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <h3 class="cap-card__title">Assistente virtual</h3>
+        <p class="cap-card__desc">Atendimento 24/7 para dúvidas de alunos e suporte ao corpo docente, com respostas contextualizadas ao curso.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="tannus-section" id="metricas" style="background:var(--color-surface);">
+  <div class="tannus-container">
+    <span class="tannus-section__label" data-num="02">Métricas</span>
+    <h2 class="tannus-section__title">A plataforma em números</h2>
+    <p class="tannus-section__subtitle">Dados reais do ecossistema Tannus. Valores atualizados periodicamente.</p>
+
+    <div class="metrics-grid" style="margin-top:2.5rem;">
+      <div class="metric-card">
+        <div class="metric-card__value">
+          <span data-counter data-target="{{ stat_courses|default('--') }}">--</span>
+        </div>
+        <div class="metric-card__label">Cursos ativos</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-card__value">
+          <span data-counter data-target="{{ stat_users|default('--') }}">--</span>
+        </div>
+        <div class="metric-card__label">Usuários cadastrados</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-card__value">
+          <span data-counter data-target="{{ stat_certificates|default('--') }}">--</span>
+        </div>
+        <div class="metric-card__label">Certificados emitidos</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-card__value">
+          <span data-counter data-target="{{ stat_sessions|default('--') }}">--</span>
+        </div>
+        <div class="metric-card__label">Sessões de aprendizagem</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="tannus-section" id="como-funciona">
+  <div class="tannus-container">
+    <span class="tannus-section__label" data-num="03">Como funciona</span>
+    <h2 class="tannus-section__title">Três passos para começar</h2>
+    <p class="tannus-section__subtitle">A integração é simples e não exige conhecimento técnico por parte do corpo docente.</p>
+
+    <div class="steps-list">
+      <div class="step-item">
+        <div class="step-item__num">01</div>
+        <div class="step-item__content">
+          <h3 class="step-item__title">Acesse a plataforma</h3>
+          <p class="step-item__desc">Faça login com suas credenciais institucionais. A IA já está ativa no seu ambiente — nenhuma configuração adicional necessária.</p>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-item__num">02</div>
+        <div class="step-item__content">
+          <h3 class="step-item__title">Crie ou importe conteúdos</h3>
+          <p class="step-item__desc">Utilize o editor de cursos ou importe materiais existentes. A IA indexa automaticamente o conteúdo para personalização.</p>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-item__num">03</div>
+        <div class="step-item__content">
+          <h3 class="step-item__title">Acompanhe os resultados</h3>
+          <p class="step-item__desc">Dashboards com métricas de engajamento, performance e recomendações geradas pela IA para cada turma.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="tannus-section" id="acesso" style="background:var(--color-surface);">
+  <div class="tannus-container">
+    <span class="tannus-section__label" data-num="04">Acesso rápido</span>
+    <h2 class="tannus-section__title">Navegação direta</h2>
+    <p class="tannus-section__subtitle">Atalhos para as principais áreas do sistema.</p>
+
+    <div class="quick-grid">
+      <a href="/login" class="quick-chip">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Login
+      </a>
+      <a href="/course" class="quick-chip">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        Catálogo de cursos
+      </a>
+      <a href="/sessions" class="quick-chip">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Sessões
+      </a>
+      <a href="/resources/document" class="quick-chip">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Documentos
+      </a>
+      <a href="/social" class="quick-chip">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Rede social
+      </a>
+      <a href="/" class="quick-chip">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Página inicial
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer class="tannus-footer">
+  <div class="tannus-container tannus-footer__inner">
+    <img src="/img/tannus-logo.png" alt="Tannus" class="tannus-footer__logo" width="96" height="24" loading="lazy">
+    <p class="tannus-footer__copy">&copy; {{ "now"|date("Y") }} Tannus Inteligência Artificial &middot; <a href="/">Voltar ao início</a></p>
+  </div>
+</footer>
+
+<script src="/js/tannus-counters.js" defer></script>
 </div>
 {% endblock %}

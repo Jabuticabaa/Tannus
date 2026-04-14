@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Chamilo\CoreBundle\Controller;
 
-use Chamilo\CoreBundle\Service\DocxConverterService;
+use Doctrine\DBAL\Connection;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -12,49 +13,33 @@ class TannusIaController extends BaseController
 {
     #[Route('/TannusAI', name: 'tannus_ai', methods: ['GET'])]
     #[Route('/TannusIA', name: 'tannus_ia', methods: ['GET'])]
-    public function view(DocxConverterService $converter): Response
+    public function view(Connection $connection, LoggerInterface $logger): Response
     {
-        $projectDir = $this->getParameter('kernel.project_dir');
-
-        $docxPaths = [
-            $projectDir . '/var/uploads/documents/TANNUS_-_PLANO_DE_NEGÓCIOS_1776200764234.docx',
-            $projectDir . '/public/uploads/documents/TANNUS_-_PLANO_DE_NEGÓCIOS_1776200764234.docx',
-            $projectDir . '/attached_assets/TANNUS_-_PLANO_DE_NEGÓCIOS_1776200764234.docx',
+        $stats = [
+            'stat_courses' => 0,
+            'stat_users' => 0,
+            'stat_certificates' => 0,
+            'stat_sessions' => 0,
         ];
 
-        $docxPath = null;
-        foreach ($docxPaths as $path) {
-            if (file_exists($path)) {
-                $docxPath = $path;
-                break;
+        $queries = [
+            'stat_courses' => 'SELECT COUNT(*) FROM course',
+            'stat_users' => 'SELECT COUNT(*) FROM user',
+            'stat_certificates' => 'SELECT COUNT(*) FROM gradebook_certificate',
+            'stat_sessions' => 'SELECT COUNT(*) FROM session',
+        ];
+
+        foreach ($queries as $key => $sql) {
+            try {
+                $stats[$key] = (int) $connection->fetchOne($sql);
+            } catch (\Throwable $e) {
+                $logger->warning('TannusIA: failed to fetch {key}: {msg}', [
+                    'key' => $key,
+                    'msg' => $e->getMessage(),
+                ]);
             }
         }
 
-        if (!$docxPath) {
-            return new Response(
-                $this->renderView('@ChamiloCore/TannusIa/error.html.twig', [
-                    'message' => 'Documento não encontrado. O arquivo .docx de origem não está disponível no momento.',
-                ]),
-                503
-            );
-        }
-
-        $result = $converter->convert($docxPath);
-
-        if (isset($result['error'])) {
-            return new Response(
-                $this->renderView('@ChamiloCore/TannusIa/error.html.twig', [
-                    'message' => 'Não foi possível converter o documento. Tente novamente mais tarde.',
-                ]),
-                503
-            );
-        }
-
-        return $this->render('@ChamiloCore/TannusIa/view.html.twig', [
-            'title' => $result['title'] ?: '',
-            'subtitle' => $result['subtitle'] ?: '',
-            'html_content' => $result['html'],
-            'toc' => $result['toc'],
-        ]);
+        return $this->render('@ChamiloCore/TannusIa/view.html.twig', $stats);
     }
 }
