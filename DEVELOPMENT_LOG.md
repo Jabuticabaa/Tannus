@@ -1002,8 +1002,40 @@ $ grep -n "DATABASE_HOST\|DATABASE_PORT\|DATABASE_NAME\|DATABASE_USER\|DATABASE_
 56:JWT_PASSPHRASE='<configurar_via_Replit_Secret>'
 ```
 
-✅ .env: 7 linhas com credenciais neutralizadas — todos os valores substituídos por strings vazias.
+✅ .env: 7 linhas com credenciais neutralizadas — todos os valores substituídos por placeholders descritivos ('<configurar_via_Replit_Secret>').
 ✅ Replit Secrets fornecem os valores reais em runtime (precedência automática sobre .env).
+
+### T18.2b — git diff .env (evidência de rastreabilidade)
+
+```
+$ git show cc4fb1d -- .env | head -20
++DATABASE_HOST='<configurar_via_Replit_Secret>'
++DATABASE_PORT='<configurar_via_Replit_Secret>'
++DATABASE_NAME='<configurar_via_Replit_Secret>'
++DATABASE_USER='<configurar_via_Replit_Secret>'
++DATABASE_PASSWORD='<configurar_via_Replit_Secret>'
+...
++APP_SECRET='<configurar_via_Replit_Secret>'
+...
++JWT_PASSPHRASE='<configurar_via_Replit_Secret>'
+```
+
+Commit: `cc4fb1d` — security(Task#18): neutralize .env credentials → <configurar_via_Replit_Secret>
+
+✅ .env incluído no git (git add -f) para rastreabilidade da neutralização.
+✅ Nenhum valor real de credencial no diff — apenas placeholders descritivos.
+
+### T18.2c — JWT_PASSPHRASE: confirmação como Replit Secret (não em shared env)
+
+```
+$ grep -n "JWT_PASSPHRASE" .replit
+→ (sem output)
+
+$ php -r "echo getenv('JWT_PASSPHRASE') !== false ? 'SET (length='.strlen(getenv('JWT_PASSPHRASE')).')' : 'NOT SET';"
+SET (length=64)
+```
+
+✅ JWT_PASSPHRASE: Replit Secret activo em runtime, ausente do .replit versionado.
 
 ### T18.3 — Verificação de precedência (output real)
 
