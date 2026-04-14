@@ -16,27 +16,23 @@ echo "[build] PHP_MEMORY_LIMIT: ${_MEM_LIMIT}"
 # IMPORTANT: We APPEND to the existing scan dir (colon-separated) rather than
 # replacing it, so that extension/module .ini files in the default scan path
 # (e.g. /etc/php.d or /nix/store/.../conf.d) are still loaded by child processes.
+# PHP_INI_SCAN_DIR is set as a Replit shared env var and already contains the
+# Nix extensions path + config/php-cli/99-memory.ini (memory_limit=-1).
+# We APPEND a fresh temp dir so any further per-build ini tweaks are also picked
+# up by ALL child processes (grandchildren of composer hooks, etc.).
+# IMPORTANT: Use the ENV VAR value as the base — NOT PHP_CONFIG_FILE_SCAN_DIR
+# (the compiled-in PHP constant), which is always "" on Nix PHP builds and would
+# silently drop all extension .ini files if used as the base.
 _INI_SCAN_DIR="$(mktemp -d)"
 cat > "${_INI_SCAN_DIR}/99-memory.ini" <<EOF
 memory_limit = -1
 max_execution_time = 0
 EOF
-_DEFAULT_PHP_INI_SCAN_DIR="$(php -r 'echo PHP_CONFIG_FILE_SCAN_DIR;')"
-export PHP_INI_SCAN_DIR="${_DEFAULT_PHP_INI_SCAN_DIR:+${_DEFAULT_PHP_INI_SCAN_DIR}:}${_INI_SCAN_DIR}"
+_BASE_SCAN_DIR="${PHP_INI_SCAN_DIR:-$(php -r 'echo PHP_CONFIG_FILE_SCAN_DIR;')}"
+export PHP_INI_SCAN_DIR="${_BASE_SCAN_DIR:+${_BASE_SCAN_DIR}:}${_INI_SCAN_DIR}"
 
-# Write ~/.php.ini so every PHP CLI subprocess picks up the user-ini automatically.
-cat > ~/.php.ini <<EOF
-memory_limit = ${_MEM_LIMIT}
-max_execution_time = 0
-date.timezone = America/Sao_Paulo
-error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT
-display_errors = Off
-log_errors = On
-EOF
-
-# Point PHPRC at the project-root php.ini file directly (not just the directory)
-# so PHP resolves it unambiguously even if the working directory changes inside
-# sub-commands.
+# PHPRC is set as a Replit shared env var → /home/runner/workspace/php.ini.
+# Re-export with the absolute pwd path so it also works if CWD shifts during build.
 export PHPRC="$(pwd)/php.ini"
 sed -i "s/^memory_limit[[:space:]]*=.*/memory_limit = ${_MEM_LIMIT}/" php.ini
 
