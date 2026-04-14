@@ -23,10 +23,10 @@ class TannusIaController extends BaseController
         ];
 
         $queries = [
-            'stat_courses' => 'SELECT COUNT(*) FROM course',
-            'stat_users' => 'SELECT COUNT(*) FROM user',
-            'stat_certificates' => 'SELECT COUNT(*) FROM gradebook_certificate',
-            'stat_sessions' => 'SELECT COUNT(*) FROM session',
+            'stat_courses' => 'SELECT COUNT(*) FROM `course`',
+            'stat_users' => 'SELECT COUNT(*) FROM `user`',
+            'stat_certificates' => 'SELECT COUNT(*) FROM `gradebook_certificate`',
+            'stat_sessions' => 'SELECT COUNT(*) FROM `session`',
         ];
 
         foreach ($queries as $key => $sql) {
