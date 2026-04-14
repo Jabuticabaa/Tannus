@@ -101,7 +101,7 @@ echo "[build] cache:warmup done."
 # STEP 5: Build frontend assets.
 # Force HTTPS for all GitHub git operations — the deploy container has no SSH keys.
 git config --global url."https://github.com/".insteadOf "git@github.com:"
-git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
+git config --global --add url."https://github.com/".insteadOf "ssh://git@github.com/"
 echo "[build] yarn install ..."
 yarn install
 echo "[build] yarn install done."
