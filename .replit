@@ -47,6 +47,8 @@ APP_ENV = "prod"
 [userenv.shared]
 PHP_MEMORY_LIMIT = "512M"
 COMPOSER_MEMORY_LIMIT = "-1"
+PHPRC = "/home/runner/workspace/php.ini"
+PHP_INI_SCAN_DIR = "/nix/store/8xs6a2mh8vhb0r5ds4wh5nm6a59x66z6-php-with-extensions-8.2.23/lib:/home/runner/workspace/config/php-cli"
 
 [[ports]]
 localPort = 5000
