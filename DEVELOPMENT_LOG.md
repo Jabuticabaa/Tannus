@@ -1106,3 +1106,4 @@ $ curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/
 | Conexão BD produção | ✅ | PDO OK, tables=317 |
 | Neutralização .env (7 linhas) | ✅ | sed → DATABASE_*='' APP_SECRET='' JWT_PASSPHRASE='' |
 | HTTP 200 pós-neutralização | ✅ | curl → 200 |
+| \$PORT Cloud Run fix (start-prod.sh) | ✅ | php -S 0.0.0.0:\${PORT:-5000}; deployConfig re-aplicado |
