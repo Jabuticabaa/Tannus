@@ -1,0 +1,78 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title ?: 'Tannus AI' }}{% endblock %}
+
+{% block stylesheets %}
+<style>
+    :root {
+        --tannus-primary: #1a237e;
+        --tannus-accent: #3949ab;
+        --tannus-bg: #f5f5f5;
+        --tannus-sidebar-bg: #fff;
+        --tannus-text: #333;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: var(--tannus-text); background: var(--tannus-bg); }
+    .tannus-wrapper { display: flex; min-height: 100vh; }
+    .tannus-sidebar {
+        width: 280px; min-width: 280px; background: var(--tannus-sidebar-bg);
+        border-right: 1px solid #ddd; padding: 24px 16px; position: sticky;
+        top: 0; height: 100vh; overflow-y: auto;
+    }
+    .tannus-sidebar h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--tannus-primary); margin: 0 0 16px; }
+    .tannus-sidebar ul { list-style: none; padding: 0; margin: 0; }
+    .tannus-sidebar li { margin-bottom: 4px; }
+    .tannus-sidebar a {
+        display: block; padding: 6px 10px; border-radius: 4px; text-decoration: none;
+        color: #555; font-size: 13px; transition: background .2s, color .2s;
+    }
+    .tannus-sidebar a:hover { background: #e8eaf6; color: var(--tannus-primary); }
+    .tannus-sidebar .toc-level-3 { padding-left: 24px; font-size: 12px; }
+    .tannus-sidebar .toc-level-4 { padding-left: 40px; font-size: 12px; }
+    .tannus-main { flex: 1; padding: 40px 48px; max-width: 900px; }
+    .tannus-header { margin-bottom: 32px; border-bottom: 2px solid var(--tannus-primary); padding-bottom: 16px; }
+    .tannus-header h1 { margin: 0 0 8px; font-size: 28px; color: var(--tannus-primary); }
+    .tannus-header p { margin: 0; font-size: 16px; color: #666; }
+    .tannus-content h2 { font-size: 22px; color: var(--tannus-primary); margin-top: 40px; border-bottom: 1px solid #ccc; padding-bottom: 8px; }
+    .tannus-content h3 { font-size: 18px; color: var(--tannus-accent); margin-top: 28px; }
+    .tannus-content h4 { font-size: 16px; margin-top: 20px; }
+    .tannus-content p { line-height: 1.7; margin: 12px 0; }
+    .tannus-content img { max-width: 100%; height: auto; border-radius: 4px; margin: 16px 0; }
+    .tannus-content .table-responsive { overflow-x: auto; margin: 16px 0; }
+    .tannus-content table { border-collapse: collapse; width: 100%; font-size: 14px; }
+    .tannus-content th, .tannus-content td { border: 1px solid #ddd; padding: 10px 12px; text-align: left; }
+    .tannus-content th { background: var(--tannus-primary); color: #fff; }
+    .tannus-content tr:nth-child(even) { background: #f9f9f9; }
+    @media (max-width: 768px) {
+        .tannus-wrapper { flex-direction: column; }
+        .tannus-sidebar { width: 100%; min-width: auto; height: auto; position: static; border-right: none; border-bottom: 1px solid #ddd; }
+        .tannus-main { padding: 24px 16px; }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="tannus-wrapper">
+    <nav class="tannus-sidebar">
+        <h2>Sumário</h2>
+        <ul>
+            {% for item in toc %}
+                <li>
+                    <a href="#{{ item.id }}" class="toc-level-{{ item.level }}">{{ item.text }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </nav>
+    <div class="tannus-main">
+        {% if title or subtitle %}
+        <div class="tannus-header">
+            {% if title %}<h1>{{ title }}</h1>{% endif %}
+            {% if subtitle %}<p>{{ subtitle }}</p>{% endif %}
+        </div>
+        {% endif %}
+        <div class="tannus-content">
+            {{ html_content|raw }}
+        </div>
+    </div>
+</div>
+{% endblock %}

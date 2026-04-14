@@ -10,6 +10,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class TannusIaController extends BaseController
 {
+    #[Route('/TannusAI', name: 'tannus_ai', methods: ['GET'])]
     #[Route('/TannusIA', name: 'tannus_ia', methods: ['GET'])]
     public function view(DocxConverterService $converter): Response
     {
@@ -31,7 +32,7 @@ class TannusIaController extends BaseController
 
         if (!$docxPath) {
             return new Response(
-                $this->renderView('tannus_ia/error.html.twig', [
+                $this->renderView('@ChamiloCore/TannusIa/error.html.twig', [
                     'message' => 'Documento não encontrado. O arquivo .docx de origem não está disponível no momento.',
                 ]),
                 503
@@ -42,14 +43,14 @@ class TannusIaController extends BaseController
 
         if (isset($result['error'])) {
             return new Response(
-                $this->renderView('tannus_ia/error.html.twig', [
+                $this->renderView('@ChamiloCore/TannusIa/error.html.twig', [
                     'message' => 'Não foi possível converter o documento. Tente novamente mais tarde.',
                 ]),
                 503
             );
         }
 
-        return $this->render('tannus_ia/view.html.twig', [
+        return $this->render('@ChamiloCore/TannusIa/view.html.twig', [
             'title' => $result['title'] ?: '',
             'subtitle' => $result['subtitle'] ?: '',
             'html_content' => $result['html'],
