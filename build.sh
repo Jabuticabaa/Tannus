@@ -99,6 +99,9 @@ php -d memory_limit=${_MEM_LIMIT} \
 echo "[build] cache:warmup done."
 
 # STEP 5: Build frontend assets.
+echo "[build] yarn install ..."
+yarn install
+echo "[build] yarn install done."
 echo "[build] yarn build ..."
 yarn build
 echo "[build] Build complete."
