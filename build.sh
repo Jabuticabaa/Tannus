@@ -2,12 +2,27 @@
 set -e
 
 # Resolve memory limit for the build phase.
-# PHP_MEMORY_LIMIT is only injected in the run context ([userenv.shared]), NOT in the
-# autoscale build context. Using -1 (unlimited) as fallback so PhpDumper and other
-# memory-intensive compilation steps never hit the 128MB system default.
+# PHP_MEMORY_LIMIT may be available as a Replit Secret (build context) or via
+# [userenv.shared] (run context). Using -1 (unlimited) as fallback so PhpDumper
+# and other memory-intensive compilation steps never hit the 128MB system default.
 _MEM_LIMIT="${PHP_MEMORY_LIMIT:--1}"
 
 echo "[build] PHP_MEMORY_LIMIT: ${_MEM_LIMIT}"
+
+# Create a temp directory with a custom .ini file that sets memory_limit = -1.
+# PHP_INI_SCAN_DIR is inherited by every child process regardless of how it is
+# spawned, ensuring unlimited memory for the entire build chain (including children
+# of children that do not receive the parent's -d flags).
+# IMPORTANT: We APPEND to the existing scan dir (colon-separated) rather than
+# replacing it, so that extension/module .ini files in the default scan path
+# (e.g. /etc/php.d or /nix/store/.../conf.d) are still loaded by child processes.
+_INI_SCAN_DIR="$(mktemp -d)"
+cat > "${_INI_SCAN_DIR}/99-memory.ini" <<EOF
+memory_limit = -1
+max_execution_time = 0
+EOF
+_DEFAULT_PHP_INI_SCAN_DIR="$(php -r 'echo PHP_CONFIG_FILE_SCAN_DIR;')"
+export PHP_INI_SCAN_DIR="${_DEFAULT_PHP_INI_SCAN_DIR:+${_DEFAULT_PHP_INI_SCAN_DIR}:}${_INI_SCAN_DIR}"
 
 # Write ~/.php.ini so every PHP CLI subprocess picks up the user-ini automatically.
 cat > ~/.php.ini <<EOF
@@ -19,8 +34,10 @@ display_errors = Off
 log_errors = On
 EOF
 
-# Also update the project-root php.ini loaded via PHPRC.
-export PHPRC="$(pwd)"
+# Point PHPRC at the project-root php.ini file directly (not just the directory)
+# so PHP resolves it unambiguously even if the working directory changes inside
+# sub-commands.
+export PHPRC="$(pwd)/php.ini"
 sed -i "s/^memory_limit[[:space:]]*=.*/memory_limit = ${_MEM_LIMIT}/" php.ini
 
 export COMPOSER_MEMORY_LIMIT=-1
