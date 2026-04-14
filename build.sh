@@ -1,9 +1,11 @@
 #!/bin/bash
 set -e
 
-# Resolve memory limit: PHP_MEMORY_LIMIT injected via [env] in .replit (build context).
-# Falls back to 512M when not injected.
-_MEM_LIMIT="${PHP_MEMORY_LIMIT:-512M}"
+# Resolve memory limit for the build phase.
+# PHP_MEMORY_LIMIT is only injected in the run context ([userenv.shared]), NOT in the
+# autoscale build context. Using -1 (unlimited) as fallback so PhpDumper and other
+# memory-intensive compilation steps never hit the 128MB system default.
+_MEM_LIMIT="${PHP_MEMORY_LIMIT:--1}"
 
 echo "[build] PHP_MEMORY_LIMIT: ${_MEM_LIMIT}"
 
