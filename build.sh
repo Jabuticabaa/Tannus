@@ -60,6 +60,8 @@ php -d memory_limit=${_MEM_LIMIT} \
 echo "[build] assets:install done."
 
 # STEP 4: Warm up the DI container so it is compiled before the first request.
+# The warmed cache is kept intentionally — deleting it after warmup would be
+# contradictory and force recompilation at request time.
 echo "[build] cache:warmup ..."
 php -d memory_limit=${_MEM_LIMIT} \
     -d max_execution_time=0 \
@@ -67,10 +69,7 @@ php -d memory_limit=${_MEM_LIMIT} \
     bin/console cache:warmup --no-debug
 echo "[build] cache:warmup done."
 
-# STEP 5: Remove residual build-time cache files.
-find var/cache -mindepth 1 -delete 2>/dev/null || true
-
-# STEP 6: Build frontend assets.
+# STEP 5: Build frontend assets.
 echo "[build] yarn build ..."
 yarn build
 echo "[build] Build complete."
