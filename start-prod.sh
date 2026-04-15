@@ -15,6 +15,10 @@ echo "[prod] Starting Chamilo 2.x (APP_ENV=${APP_ENV:-prod}, port=${_PORT})"
 mkdir -p var/log var/cache var/themes var/templates
 chmod 0775 var/log var/cache 2>/dev/null || true
 
+if [ -n "$PHP_INI_SCAN_DIR" ]; then
+  echo "[prod] PHP_INI_SCAN_DIR: ${PHP_INI_SCAN_DIR}"
+fi
+
 echo "[prod] Starting PHP built-in server on 0.0.0.0:${_PORT} ..."
 exec php \
     -d memory_limit=256M \

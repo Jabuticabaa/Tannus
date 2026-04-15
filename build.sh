@@ -28,7 +28,7 @@ cat > "${_INI_SCAN_DIR}/99-memory.ini" <<EOF
 memory_limit = -1
 max_execution_time = 0
 EOF
-_BASE_SCAN_DIR="${PHP_INI_SCAN_DIR:-$(php -r 'echo PHP_CONFIG_FILE_SCAN_DIR;')}"
+_BASE_SCAN_DIR="${PHP_INI_SCAN_DIR:-$(php -r 'echo php_ini_scanned_files() ? dirname(explode(",",php_ini_scanned_files())[0]) : "";')}"
 export PHP_INI_SCAN_DIR="${_BASE_SCAN_DIR:+${_BASE_SCAN_DIR}:}${_INI_SCAN_DIR}"
 
 # PHPRC is set as a Replit shared env var → /home/runner/workspace/php.ini.
