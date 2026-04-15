@@ -1,0 +1,149 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Plano de Negócio — Tannus IA + Mega Sistema{% endblock %}
+
+{% block stylesheets %}
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@700,900&f[]=general-sans@400,500,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/tannus-design-system.css">
+{% endblock %}
+
+{% block body %}
+<div class="tannus-page pitch-page">
+
+<div id="readingProgress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+
+<nav class="tannus-nav pitch-nav" id="pitchNav">
+  <div class="tannus-nav__inner">
+    <a href="/" style="display:inline-flex;align-items:center;" aria-label="Tannus IA — Início">
+      <img src="/img/tannus-logo.png" alt="Tannus" class="tannus-nav__logo" width="120" height="30" loading="eager">
+    </a>
+    <div class="pitch-nav__center" aria-live="polite" aria-atomic="true">
+      <span class="pitch-nav__doc-label">Plano de Negócio</span>
+      <span class="pitch-nav__section-label" id="navSectionLabel"></span>
+    </div>
+    <div class="tannus-nav__actions">
+      <button type="button" class="pitch-sidebar-toggle" id="sidebarToggle" aria-label="Abrir sumário" aria-expanded="false" aria-controls="pitchSidebar">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <button type="button" class="theme-toggle" id="themeToggle" aria-label="Alternar tema claro/escuro">
+        <svg class="icon-moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="icon-sun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+      <a href="/login" class="btn-primary" style="font-size:0.8125rem;padding:0.5rem 1.125rem;">Entrar</a>
+    </div>
+  </div>
+</nav>
+
+<div class="pitch-layout">
+
+  <aside class="pitch-sidebar" id="pitchSidebar" aria-label="Sumário do documento">
+    <div class="pitch-sidebar__inner">
+
+      <div class="pitch-sidebar__header">
+        <span class="pitch-sidebar__label">Sumário</span>
+        <button type="button" class="pitch-sidebar__close" id="sidebarClose" aria-label="Fechar sumário">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="pitch-sidebar__progress" aria-hidden="true">
+        <div class="pitch-sidebar__progress-bar" id="sidebarProgressBar"></div>
+      </div>
+
+      <nav class="pitch-toc" id="pitchToc" aria-label="Índice de seções">
+        {% if toc|length > 0 %}
+          <ul class="pitch-toc__list" role="list">
+            {% set prevLevel = 0 %}
+            {% for item in toc %}
+              {% if prevLevel >= 3 and item.level == 2 %}
+                <li class="pitch-toc__separator" role="separator" aria-hidden="true"></li>
+              {% endif %}
+              <li class="pitch-toc__item pitch-toc__item--l{{ item.level }}" data-toc-id="{{ item.id }}" role="listitem">
+                <a href="#{{ item.id }}" class="pitch-toc__link">
+                  {% if item.level == 3 %}<span class="pitch-toc__dot" aria-hidden="true"></span>{% endif %}
+                  <span class="pitch-toc__text">{{ item.text }}</span>
+                </a>
+              </li>
+              {% set prevLevel = item.level %}
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="pitch-toc__empty">Navegação indisponível.</p>
+        {% endif %}
+      </nav>
+
+    </div>
+  </aside>
+
+  <div class="pitch-sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+
+  <main class="pitch-content" id="pitchContent" tabindex="-1">
+
+    <header class="pitch-cover">
+      <div class="pitch-cover__badge">
+        <span class="tannus-hero__badge-dot" aria-hidden="true"></span>
+        Confidencial · Versão 1.0
+      </div>
+      <h1 class="pitch-cover__title">{{ doc_title ?: 'Plano de Negócio' }}</h1>
+      {% if doc_subtitle %}
+        <p class="pitch-cover__subtitle">{{ doc_subtitle }}</p>
+      {% endif %}
+      <p class="pitch-cover__meta">Tannus IA + Mega Sistema de Comunicação · 15/04/2026</p>
+      <div class="pitch-cover__scroll-hint" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        <span>Role para ler</span>
+      </div>
+    </header>
+
+    <div class="pitch-body doc-prose" id="pitchBody">
+      {{ html_content|raw }}
+    </div>
+
+    <section class="pitch-cta" id="proposta-final" aria-labelledby="ctaTitle">
+      <div class="pitch-cta__inner">
+        <div class="pitch-cta__label">Proposta Final</div>
+        <h2 class="pitch-cta__title" id="ctaTitle">Parceria Estratégica</h2>
+        <p class="pitch-cta__desc">Tannus IA + Mega Sistema de Comunicação — 18 meses · Sociedade 50/50</p>
+        <div class="pitch-cta__values">
+          <div class="pitch-cta__value-item">
+            <span class="pitch-cta__value">R$ 997.000</span>
+            <span class="pitch-cta__value-label">Investimento total</span>
+          </div>
+          <div class="pitch-cta__value-item">
+            <span class="pitch-cta__value">18</span>
+            <span class="pitch-cta__value-label">Meses de execução</span>
+          </div>
+          <div class="pitch-cta__value-item">
+            <span class="pitch-cta__value">50/50</span>
+            <span class="pitch-cta__value-label">Participação societária</span>
+          </div>
+        </div>
+        <a href="/login" class="btn-primary" style="margin-top:2rem;gap:0.5rem;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          Acessar plataforma
+        </a>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer class="tannus-footer" style="margin-left:0;">
+  <div class="tannus-container tannus-footer__inner">
+    <img src="/img/tannus-logo.png" alt="Tannus" class="tannus-footer__logo" width="96" height="24" loading="lazy">
+    <p class="tannus-footer__copy">&copy; {{ "now"|date("Y") }} Tannus Inteligência Artificial · Documento Confidencial · <a href="/">Início</a></p>
+  </div>
+</footer>
+
+</div>
+
+<button type="button" id="backToTop" aria-label="Voltar ao início" title="Voltar ao início">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+
+<button type="button" id="mobileSidebarFab" aria-label="Abrir sumário" aria-controls="pitchSidebar" aria-expanded="false">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+</button>
+
+<script src="/js/tannus-pitch.js" defer></script>
+{% endblock %}

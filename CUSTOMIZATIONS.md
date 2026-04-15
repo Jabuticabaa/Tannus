@@ -78,12 +78,28 @@ Owner: Project maintainer
 | Versão | Data | Autor | Descrição |
 |---|---|---|---|
 | 1.0 | 2026-04-14 | Agent | Inventário inicial completo pós-instalação |
-| 1.1 | 2026-04-14 | Agent | FASE 0: remoção de public/check.php |
-| 1.2 | 2026-04-14 | Agent | FASE 2.3: .env.example; APP_SECRET → Replit Secret |
-| 1.3 | 2026-04-14 | Agent | FASE 2.2: timezone MySQL alinhada (-03:00) |
-| 1.4 | 2026-04-14 | Agent | FASE 2.1: build síncrono (race condition corrigida) |
-| 1.5 | 2026-04-14 | Agent | Task #15: remoção física de public/main/install/ |
-| 1.6 | 2026-04-14 | Agent | Task #16: fix OOM build |
-| 1.7 | 2026-04-14 | Agent | Task #18: credenciais neutralizadas no .env |
-| 1.8 | 2026-04-14 | Agent | Task #26: /TannusIA landing page tech premium |
+<<<<<<< HEAD
+| 1.1 | 2026-04-14 | Agent | FASE 0: remoção de public/check.php (exposto, sem referências internas, legado Symfony 2/3/4) |
+| 1.2 | 2026-04-14 | Agent | FASE 2.3: criação de .env.example; APP_SECRET movido para Replit Secret; JWT_PASSPHRASE analisado e mantido em .env (chave JWT sem passphrase, valor ignorado pelo bundle) |
+| 1.3 | 2026-04-14 | Agent | FASE 2.2: start.sh — bloco timezone MySQL adicionado (`SET GLOBAL time_zone = '-03:00'`); Gap #4 encerrado |
+| 1.4 | 2026-04-14 | Agent | FASE 2.1: start.sh — build síncrono (race condition corrigida); replit.md atualizado; ROADMAP.md gaps fechados |
+| 1.5 | 2026-04-14 | Agent | FASE 2 (Task #15): remoção física de public/main/install/ do disco; HTTP 409 → 404; FASE 3 confirmada (config perms 0555 via start.sh); documentação atualizada com outputs reais |
+| 1.6 | 2026-04-14 | Agent | Task #16: fix OOM no build — build.sh reescrito (php -d, hard gate removido, assets explícito); composer.json (memory-limit + --no-scripts); PHP_MEMORY_LIMIT=512M e COMPOSER_MEMORY_LIMIT=-1 como shared env vars |
+| 1.7 | 2026-04-14 | Agent | Task #18 (FINAL): .env — 7 credenciais neutralizadas via sed (DATABASE_*='' APP_SECRET='' JWT_PASSPHRASE=''); JWT_PASSPHRASE → Replit Secret (length=64, hex); todos os Replit Secrets validados em runtime; DB prod OK (tables=317); HTTP 200 |
+| 1.8 | 2026-04-14 | Agent | Task #26: /TannusIA reconstruído como landing page tech premium — dark theme teal gradient; hero com badge + CTAs; 4 capacidades com ícones SVG; métricas reais do DB (Doctrine DBAL); 3-step "Como funciona"; 6 quick-access chips; dark/light toggle; animated counters (IntersectionObserver); CSS design system separado; controller reescrito sem DocxConverterService |
+| 1.9 | 2026-04-15 | Agent | Task #27: migração de rotas — / e /home → TannusIaController (landing page premium); /TannusIA e /TannusAI → TannusPitchController (pitch deck DOCX interativo); IndexController: rotas / e /home removidas; security.yaml: PUBLIC_ACCESS para /, /home, /api/tannus-chat; TannusPitch view.html.twig com sidebar TOC navigável (52 itens), scrollspy IntersectionObserver, CTA final destacado (R$ 997.000/18 meses/50-50), dark theme; public/js/tannus-pitch.js; CSS pitch deck adicionado ao design system; HTTP 200 confirmado em todas as 4 rotas |
 | 2.0 | 2026-04-15 | Agent | Task #29: router.php (fix ALL 404s); .env.local (TRUSTED_PROXIES, CORS, locale pt_BR); schema markup JSON-LD (Organization+WebSite+SoftwareApplication); replit.md atualizado (chmod 0555 removido, router.php documentado); ARCHITECTURE.md v2.0; ROADMAP.md v2.0; .env.example atualizado |
+
+---
+
+## Task #27 — Entradas do Inventário
+
+| Data | Arquivo / Diretório | Tipo | Motivo | Risco de Conflito | Estratégia |
+|---|---|---|---|---|---|
+| 2026-04-15 | `src/CoreBundle/Controller/TannusIaController.php` — rotas alteradas | Feature | Adicionadas rotas / (name: index) e /home (name: home); rotas /TannusIA e /TannusAI movidas para TannusPitchController | Baixo — rotas / e /home transferidas do IndexController; nomes index e home mantidos para não quebrar referências internas | Manter; IndexController.php documentado como modificado |
+| 2026-04-15 | `src/CoreBundle/Controller/IndexController.php` — rotas / e /home removidas | Core (modificado) | Remoção das rotas `index` (/) e `home` (/home) do IndexController para permitir que TannusIaController as sirva com a landing page premium | Médio — arquivo de core; nomes de rota `index` e `home` preservados em TannusIaController | Documentar diff; não reverter; se Chamilo upstream reintroduzir, reaplicar remoção |
+| 2026-04-15 | `src/CoreBundle/Controller/TannusPitchController.php` — **criado** | Feature | Controller com rotas /TannusIA e /TannusAI; injeta DocxConverterService; converte TANNUS_-_PLANO_DE_NEGÓCIOS_1776210166304.docx via mammoth; passa title, subtitle, html_content, toc ao template | Baixo — controller isolado | Manter; atualizar path DOCX se arquivo mudar |
+| 2026-04-15 | `src/CoreBundle/Resources/views/TannusPitch/view.html.twig` — **criado** | Feature | Template pitch deck: header sticky com logo + link Entrar; layout 2 colunas (sidebar esquerda TOC + corpo principal); sidebar com offcanvas mobile; cover com badge Confidencial + title/subtitle do DOCX; doc-prose HTML gerado pelo mammoth; CTA destacado (R$ 997.000 / 18 meses / 50/50); dark theme com CSS vars do design system | Baixo — template isolado | Manter |
+| 2026-04-15 | `public/js/tannus-pitch.js` — **criado** | Feature | IntersectionObserver scrollspy para TOC; sidebar mobile toggle (hamburger + overlay + close); smooth scroll para anchors; phase-card wrapping para seções de fase (regex 01–05); table visual wrapper; theme toggle reaproveitando localStorage | Baixo — script standalone | Manter |
+| 2026-04-15 | `public/css/tannus-design-system.css` — extensão (pitch deck) | Feature | Adicionadas classes: .pitch-sidebar, .pitch-content, .pitch-phase-card, .pitch-cta, .pitch-metric-grid, .pitch-table-visual, .doc-prose, .pitch-toc__*, .pitch-cover__*; media queries offcanvas mobile; desktop: sidebar sticky 280px fixed; nenhuma regra existente removida | Baixo — apenas adição ao final do arquivo | Manter |
+| 2026-04-15 | `config/packages/security.yaml` — access_control | Config/Segurança | Adicionadas entradas PUBLIC_ACCESS para ^/$ (raiz), ^/home(/\|$) e ^/api/tannus-chat; /TannusIA e /TannusAI já existiam | Baixo — amplia acesso público; não remove restrições existentes | Manter |

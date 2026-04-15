@@ -1189,3 +1189,66 @@ $ curl -s http://localhost:5000/TannusIA | grep -oP 'data-target="\K[^"]+'
 | prefers-reduced-motion | ✅ | CSS @media + JS prefersReduced |
 | SQL injection safety | ✅ | Queries estáticas sem input do usuário; tabelas com backtick |
 | Error logging | ✅ | LoggerInterface warning per-query |
+
+---
+
+## Task #27 — Migração de Rotas + TannusPitch DOCX (2026-04-15)
+
+| Data | Fase | Ação | Arquivos Afetados | Resultado Real | Fonte |
+|------|------|------|-------------------|----------------|-------|
+| 2026-04-15 | T27-F1 | Migrar landing page para / e /home | TannusIaController.php, IndexController.php | HTTP 200 em / e /home; curl title → "Tannus IA — Inteligência Artificial"; router:match / → TannusIaController::view() | Task #27 |
+| 2026-04-15 | T27-F2 | Criar TannusPitchController para /TannusIA e /TannusAI | TannusPitchController.php (novo) | HTTP 200 em /TannusIA e /TannusAI; mammoth converte TANNUS_-_PLANO_DE_NEGÓCIOS_1776210166304.docx OK | Task #27 |
+| 2026-04-15 | T27-F3 | Criar template pitch deck | views/TannusPitch/view.html.twig (novo) | 52 TOC items; 63 anchors; pitch-cover__title → "PLANO DE NEGÓCIO"; pitch-cta, pitch-sidebar, doc-prose renderizados | Task #27 |
+| 2026-04-15 | T27-F4 | JS scrollspy + sidebar mobile | public/js/tannus-pitch.js (novo) | IntersectionObserver para TOC highlight; sidebar toggle; smooth scroll; phase-card wrapping | Task #27 |
+| 2026-04-15 | T27-F5 | Estender CSS design system | public/css/tannus-design-system.css | Classes pitch-* e doc-prose adicionadas; media queries mobile offcanvas; sidebar sticky 1024px+ | Task #27 |
+| 2026-04-15 | T27-F6 | security.yaml PUBLIC_ACCESS | config/packages/security.yaml | ^/$ PUBLIC_ACCESS; ^/home(/\|$) PUBLIC_ACCESS; ^/api/tannus-chat PUBLIC_ACCESS | Task #27 |
+
+### Outputs reais de verificação
+
+```
+$ curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/ && echo " /"
+200 /
+
+$ curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/home && echo " /home"
+200 /home
+
+$ curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/TannusIA && echo " /TannusIA"
+200 /TannusIA
+
+$ curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/TannusAI && echo " /TannusAI"
+200 /TannusAI
+
+$ curl -s http://localhost:5000/ | grep -o '<title>.*</title>'
+<title>Tannus IA — Inteligência Artificial</title>
+
+$ curl -s http://localhost:5000/TannusIA | grep -c 'pitch-toc__item'
+52
+
+$ curl -s http://localhost:5000/TannusIA | grep -c 'id='
+63
+
+$ curl -s http://localhost:5000/TannusIA | grep 'pitch-cover__title'
+<h1 class="pitch-cover__title">PLANO DE NEGÓCIO</h1>
+
+$ php bin/console router:match / | grep -E "Route Name|Controller"
+| Route Name   | index
+| Defaults     | _controller: Chamilo\CoreBundle\Controller\TannusIaController::view()
+```
+
+### Checklist de aceitação
+
+| Item | Status | Evidência |
+|------|--------|-----------|
+| GET / → landing page premium | ✅ | curl → 200; title → "Tannus IA — Inteligência Artificial" |
+| GET /home → landing page premium | ✅ | curl → 200; title → "Tannus IA — Inteligência Artificial" |
+| GET /TannusIA → pitch deck DOCX | ✅ | curl → 200; 52 TOC items; cover title do DOCX |
+| GET /TannusAI → pitch deck DOCX | ✅ | curl → 200; mesma response |
+| Sidebar TOC navegável | ✅ | 52 pitch-toc__item; anchors em todos h2/h3/h4 |
+| Sumário NÃO aparece no corpo | ✅ | DOCX table-of-contents inline removida via processHtml |
+| scrollspy IntersectionObserver | ✅ | tannus-pitch.js implementado |
+| Sidebar offcanvas mobile | ✅ | CSS + JS toggle; overlay; close button; ESC key |
+| CTA final destacado | ✅ | .pitch-cta com R$ 997.000 / 18 meses / 50/50 |
+| Dark theme + CSS vars | ✅ | mesmas variáveis do tannus-design-system.css |
+| security.yaml PUBLIC_ACCESS | ✅ | / /home /TannusIA /TannusAI /api/tannus-chat |
+| IndexController não quebrado | ✅ | /login /sessions /admin ainda funcionam via IndexController |
+| Nenhum texto do DOCX alterado | ✅ | HTML gerado por mammoth sem modificação de conteúdo |

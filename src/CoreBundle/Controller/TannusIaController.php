@@ -11,8 +11,8 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class TannusIaController extends BaseController
 {
-    #[Route('/TannusAI', name: 'tannus_ai', methods: ['GET'])]
-    #[Route('/TannusIA', name: 'tannus_ia', methods: ['GET'])]
+    #[Route('/', name: 'index', options: ['expose' => true], methods: ['GET'])]
+    #[Route('/home', name: 'home', options: ['expose' => true], methods: ['GET'])]
     public function view(Connection $connection, LoggerInterface $logger): Response
     {
         $stats = [

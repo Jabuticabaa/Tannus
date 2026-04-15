@@ -583,3 +583,919 @@ html {
     padding: 0 2rem;
   }
 }
+
+/* =====================================================
+   PITCH DECK — TannusPitch layout
+   ===================================================== */
+
+/* Reading progress bar — fixed top of viewport */
+#readingProgress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-accent) 0%, #7fffd4 100%);
+  z-index: 999;
+  border-radius: 0 3px 3px 0;
+  transition: width 0.08s linear;
+  pointer-events: none;
+}
+
+/* Back to top button */
+#backToTop {
+  position: fixed;
+  bottom: 2rem;
+  right: 1.75rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: #0d0d0f;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(0.75rem);
+  transition: opacity 0.25s, transform 0.25s, box-shadow var(--transition-base);
+  z-index: 110;
+  box-shadow: 0 4px 18px rgba(78,205,196,0.35);
+  pointer-events: none;
+}
+#backToTop.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+#backToTop:hover {
+  box-shadow: 0 6px 28px rgba(78,205,196,0.55);
+  transform: translateY(-3px);
+}
+
+/* Mobile floating action button */
+#mobileSidebarFab {
+  position: fixed;
+  bottom: 1.75rem;
+  left: 1.25rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 90;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  transition: all var(--transition-base);
+}
+#mobileSidebarFab:hover {
+  background: var(--color-accent);
+  color: #0d0d0f;
+  border-color: var(--color-accent);
+}
+
+.pitch-page {
+  overflow-x: hidden;
+}
+
+.pitch-nav .tannus-nav__inner {
+  position: relative;
+}
+
+.pitch-nav__center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+  max-width: 360px;
+  text-align: center;
+}
+
+.pitch-nav__doc-label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.pitch-nav__section-label {
+  font-size: 0.6875rem;
+  color: var(--color-accent);
+  letter-spacing: 0.02em;
+  opacity: 0.9;
+  line-height: 1.2;
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pitch-sidebar-toggle {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  width: 2.25rem;
+  height: 2.25rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-base);
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.pitch-sidebar-toggle:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.pitch-layout {
+  display: flex;
+  min-height: 100vh;
+  padding-top: 3.5rem;
+}
+
+/* Sidebar */
+.pitch-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  position: fixed;
+  top: 3.5rem;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  z-index: 80;
+  transform: translateX(-100%);
+  transition: transform var(--transition-base);
+}
+
+.pitch-sidebar--open,
+.pitch-sidebar:focus-within {
+  transform: translateX(0);
+}
+
+.pitch-sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 79;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.pitch-sidebar-overlay--visible {
+  display: block;
+}
+
+.pitch-sidebar__inner {
+  padding: 1.25rem;
+  padding-top: 1rem;
+}
+
+.pitch-sidebar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pitch-sidebar__label {
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+/* Mini reading progress bar inside sidebar */
+.pitch-sidebar__progress {
+  height: 3px;
+  background: var(--color-border);
+  border-radius: 2px;
+  margin-bottom: 0.875rem;
+  overflow: hidden;
+}
+.pitch-sidebar__progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--color-accent) 0%, #7fffd4 100%);
+  border-radius: 2px;
+  transition: width 0.1s linear;
+}
+
+.pitch-sidebar__close {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-base);
+}
+
+.pitch-sidebar__close:hover { color: var(--color-text); }
+
+/* TOC ─────────────────────────────────────────────── */
+.pitch-toc__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.pitch-toc__item { padding: 0; }
+
+/* Separator between top-level sections */
+.pitch-toc__separator {
+  height: 1px;
+  background: var(--color-border);
+  margin: 0.625rem 0.5rem;
+  opacity: 0.6;
+  list-style: none;
+}
+
+/* Base link reset */
+.pitch-toc__link {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--radius-sm);
+  transition: color 0.18s, background 0.18s, border-color 0.18s;
+  line-height: 1.4;
+  border-left: 2px solid transparent;
+  cursor: pointer;
+}
+
+/* L2 — main sections: bolder, brighter */
+.pitch-toc__item--l2 .pitch-toc__link {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: rgba(var(--color-text-rgb, 232,232,234), 0.9);
+  color: var(--color-text);
+  padding: 0.45rem 0.75rem;
+  margin-top: 0.125rem;
+}
+
+/* L3 — child items: indented, muted, with dot */
+.pitch-toc__item--l3 .pitch-toc__link {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  padding: 0.3rem 0.75rem 0.3rem 1.625rem;
+  border-radius: var(--radius-sm);
+  position: relative;
+}
+
+.pitch-toc__dot {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-border);
+  flex-shrink: 0;
+  position: absolute;
+  left: 0.875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: background 0.18s;
+}
+
+/* L4 — deep items: very indented, smallest */
+.pitch-toc__item--l4 .pitch-toc__link {
+  font-size: 0.6875rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  padding: 0.25rem 0.75rem 0.25rem 2.25rem;
+  opacity: 0.7;
+}
+
+/* Hover state */
+.pitch-toc__link:hover {
+  color: var(--color-text);
+  background: rgba(255,255,255,0.04);
+}
+.pitch-toc__item--l3:hover .pitch-toc__dot {
+  background: var(--color-accent);
+}
+
+/* Active state */
+.pitch-toc__item--active .pitch-toc__link {
+  color: var(--color-accent);
+  border-left-color: var(--color-accent);
+  background: rgba(78, 205, 196, 0.08);
+  font-weight: 600;
+}
+.pitch-toc__item--l3.pitch-toc__item--active .pitch-toc__link {
+  font-weight: 500;
+}
+.pitch-toc__item--l3.pitch-toc__item--active .pitch-toc__dot {
+  background: var(--color-accent);
+}
+
+.pitch-toc__text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pitch-toc__empty {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  padding: 0.5rem 0.75rem;
+}
+
+/* Main content area */
+.pitch-content {
+  flex: 1;
+  min-width: 0;
+  padding: 2rem 1.25rem 4rem;
+  max-width: 860px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Cover / hero */
+.pitch-cover {
+  padding: 3rem 0 2.5rem;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 2.5rem;
+}
+
+.pitch-cover__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.875rem;
+  border-radius: 999px;
+  background: rgba(78, 205, 196, 0.1);
+  border: 1px solid rgba(78, 205, 196, 0.2);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-accent);
+  margin-bottom: 1.5rem;
+}
+
+.pitch-cover__title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+  margin-bottom: 0.75rem;
+}
+
+.pitch-cover__subtitle {
+  font-size: 1.125rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+.pitch-cover__meta {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
+.pitch-cover__scroll-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: 2rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+  opacity: 0.5;
+  animation: pitch-bounce 1.8s ease-in-out infinite;
+}
+
+@keyframes pitch-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pitch-cover__scroll-hint { animation: none; }
+}
+
+/* Document prose */
+.doc-prose {
+  line-height: 1.75;
+  color: var(--color-text);
+}
+
+.doc-prose h2 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(1.375rem, 3vw, 1.875rem);
+  line-height: 1.2;
+  color: var(--color-text);
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.doc-prose h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.125rem, 2vw, 1.375rem);
+  color: var(--color-text);
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.doc-prose h4 {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.doc-prose p {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.doc-prose ul,
+.doc-prose ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.doc-prose li {
+  margin-bottom: 0.375rem;
+  font-size: 1rem;
+}
+
+.doc-prose strong { color: var(--color-text); font-weight: 600; }
+.doc-prose em { color: var(--color-text-muted); }
+
+.doc-prose figcaption {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  margin-top: 0.375rem;
+  text-align: center;
+}
+
+/* Tables */
+.pitch-table-visual {
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  margin: 1.5rem 0;
+}
+
+.pitch-table-visual table,
+.doc-prose .table-responsive table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.pitch-table-visual th,
+.doc-prose .table-responsive th {
+  background: var(--color-surface-2);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-accent);
+  padding: 0.875rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pitch-table-visual td,
+.doc-prose .table-responsive td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-size: 0.9375rem;
+}
+
+.pitch-table-visual tr:last-child td,
+.doc-prose .table-responsive tr:last-child td {
+  border-bottom: none;
+}
+
+.pitch-table-visual tr:hover td,
+.doc-prose .table-responsive tr:hover td {
+  background: var(--color-surface-2);
+}
+
+/* Market metric grid — tables in Mercado section */
+.pitch-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.875rem;
+  margin: 1.5rem 0;
+}
+
+.pitch-metric-grid__card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.pitch-metric-grid__value {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.5rem;
+  color: var(--color-accent);
+  margin-bottom: 0.375rem;
+  line-height: 1;
+}
+
+.pitch-metric-grid__label {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+/* Phase cards */
+.pitch-phase-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 1.75rem;
+  margin: 1.5rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.pitch-phase-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--color-accent), var(--color-primary));
+}
+
+.pitch-phase-card h2,
+.pitch-phase-card h3 {
+  margin-top: 0;
+  border-top: none;
+  padding-top: 0;
+}
+
+/* CTA final */
+.pitch-cta {
+  background: linear-gradient(135deg, var(--color-surface-2), var(--color-surface-3));
+  border: 1px solid rgba(78, 205, 196, 0.25);
+  border-radius: var(--radius-xl);
+  margin: 3rem 0 2rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.pitch-cta::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+}
+
+.pitch-cta__inner {
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.pitch-cta__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 0.75rem;
+}
+
+.pitch-cta__title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+  line-height: 1.1;
+}
+
+.pitch-cta__desc {
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0;
+}
+
+.pitch-cta__values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.pitch-cta__value-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.pitch-cta__value {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 2rem;
+  color: var(--color-accent);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.pitch-cta__value-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Responsive — desktop (≥1024px): sidebar always visible, no toggles */
+@media (min-width: 1024px) {
+  .pitch-sidebar {
+    transform: translateX(0);
+    position: sticky;
+    top: 3.5rem;
+    height: calc(100vh - 3.5rem);
+    align-self: flex-start;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+  }
+  .pitch-sidebar::-webkit-scrollbar { width: 4px; }
+  .pitch-sidebar::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 2px; }
+
+  .pitch-sidebar-toggle { display: none; }
+  .pitch-sidebar__close  { display: none; }
+  .pitch-sidebar-overlay { display: none !important; }
+  #mobileSidebarFab      { display: none !important; }
+
+  .pitch-content {
+    padding: 2.5rem 3rem 5rem;
+  }
+
+  .pitch-layout {
+    align-items: flex-start;
+  }
+
+  .pitch-cta__inner {
+    padding: 3rem;
+  }
+
+  #backToTop {
+    right: 2rem;
+    bottom: 2.5rem;
+  }
+}
+
+/* Tablet / mobile (< 1024px): sidebar is off-canvas drawer */
+@media (max-width: 1023px) {
+  .pitch-nav__center {
+    display: none;
+  }
+  #mobileSidebarFab {
+    display: inline-flex;
+  }
+}
+
+@media (min-width: 640px) {
+  .pitch-cta__values {
+    gap: 3rem;
+  }
+  .pitch-metric-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+}
+
+/* =====================================================
+   PITCH DECK — Metric Cards (market table transform)
+   ===================================================== */
+
+.pitch-metric-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+.pitch-metric-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: box-shadow var(--transition-base);
+}
+
+.pitch-metric-card:hover {
+  box-shadow: var(--shadow-glow);
+}
+
+.pitch-metric-card__indicator {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.4;
+}
+
+.pitch-metric-card__values {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pitch-metric-card__primary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 80px;
+}
+
+.pitch-metric-card__val {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.75rem;
+  color: var(--color-accent);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.pitch-metric-card__region {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.pitch-metric-card__secondary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.pitch-metric-card__secondary strong {
+  color: var(--color-text);
+  font-weight: 600;
+  margin-right: 0.25rem;
+}
+
+@media (min-width: 640px) {
+  .pitch-metric-card {
+    flex-direction: row;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .pitch-metric-card__indicator {
+    flex: 1;
+    min-width: 180px;
+  }
+  .pitch-metric-card__values {
+    flex-shrink: 0;
+  }
+}
+
+/* =====================================================
+   PITCH DECK — Phase timeline cards
+   ===================================================== */
+
+.pitch-phase-card {
+  counter-increment: phase-counter;
+}
+
+.pitch-phase-card h2::before,
+.pitch-phase-card h3::before {
+  content: none;
+}
+
+.pitch-phase-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+  padding-left: 2rem;
+}
+
+.pitch-phase-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0.5rem;
+  width: 2px;
+  background: linear-gradient(180deg, var(--color-accent), transparent);
+  border-radius: 1px;
+}
+
+/* =====================================================
+   PITCH DECK — Phase heading server-side rendering
+   ===================================================== */
+
+.pitch-phase-card {
+  border: 1px solid rgba(78, 205, 196, 0.2);
+  border-left: 3px solid var(--color-accent);
+  border-radius: var(--radius-xl);
+  padding: 1.5rem 1.75rem;
+  margin: 1.75rem 0;
+  background: var(--color-surface);
+  position: relative;
+  overflow: visible;
+}
+
+.pitch-phase-card::before {
+  display: none;
+}
+
+.pitch-phase-heading {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0;
+  border-top: none;
+  padding-top: 0;
+}
+
+.pitch-phase-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: #0d0d0f;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+[data-phase="1"] .pitch-phase-num { background: #4ecdc4; }
+[data-phase="2"] .pitch-phase-num { background: #3bbdb5; }
+[data-phase="3"] .pitch-phase-num { background: #2aada5; }
+[data-phase="4"] .pitch-phase-num { background: #238584; }
+[data-phase="5"] .pitch-phase-num { background: #1a6b6a; color: #e8e8ea; }
+
+.pitch-phase-card + .pitch-phase-card {
+  margin-top: 1rem;
+}

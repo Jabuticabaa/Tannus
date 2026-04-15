@@ -14,11 +14,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class IndexController extends BaseController
 {
-    #[Route('/', name: 'index', options: ['expose' => true], methods: ['GET', 'POST'])]
     #[Route('/sessions', name: 'sessions')]
     #[Route('/sessions/{extra}', name: 'sessions_options')]
     #[Route('/admin/{vueRouting}', name: 'admin_vue_entrypoint', requirements: ['vueRouting' => '.+'])]
-    #[Route('/home', name: 'home', options: ['expose' => true], methods: ['GET', 'POST'])]
     #[Route('/login', name: 'login', options: ['expose' => true], methods: ['GET', 'POST'])]
     #[Route('/faq', name: 'faq', options: ['expose' => true], methods: ['GET', 'POST'])]
     #[Route('/demo', name: 'demo', options: ['expose' => true], methods: ['GET', 'POST'])]
