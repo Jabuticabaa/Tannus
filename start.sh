@@ -110,4 +110,4 @@ exec php \
     -d post_max_size=100M \
     -d max_execution_time=300 \
     -d date.timezone=America/Sao_Paulo \
-    -S 0.0.0.0:5000 -t public/
+    -S 0.0.0.0:5000 -t public/ public/router.php

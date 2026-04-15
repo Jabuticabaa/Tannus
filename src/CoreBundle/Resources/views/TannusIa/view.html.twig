@@ -5,6 +5,43 @@
 {% block stylesheets %}
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@700,900&f[]=general-sans@400,500,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/tannus-design-system.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": "Tannus IA",
+      "url": "{{ app.request.schemeAndHttpHost }}",
+      "description": "Inteligência artificial integrada ao ambiente de aprendizagem Chamilo LMS",
+      "foundingDate": "2026",
+      "sameAs": []
+    },
+    {
+      "@type": "WebSite",
+      "name": "Tannus IA",
+      "url": "{{ app.request.schemeAndHttpHost }}",
+      "description": "Plataforma de inteligência artificial para educação — automatize, personalize e potencialize resultados educacionais",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Tannus IA"
+      }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Tannus IA",
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "Web",
+      "description": "Sistema de IA integrado ao Chamilo LMS para automação e personalização educacional",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "BRL"
+      }
+    }
+  ]
+}
+</script>
 {% endblock %}
 
 {% block body %}

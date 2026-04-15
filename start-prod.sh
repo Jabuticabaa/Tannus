@@ -25,4 +25,4 @@ exec php \
     -d display_errors=Off \
     -d log_errors=On \
     -S "0.0.0.0:${_PORT}" \
-    -t public/
+    -t public/ public/router.php

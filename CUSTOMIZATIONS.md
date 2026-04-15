@@ -1,8 +1,8 @@
 # Chamilo LMS 2.x — Inventário de Customizações
 
 ---
-Version: 1.6
-Last updated: 2026-04-14 (Task #16 — fix OOM build)
+Version: 2.0
+Last updated: 2026-04-15 (Task #29 — debug, config, deploy, docs)
 Status: Active
 Owner: Project maintainer
 
@@ -17,39 +17,35 @@ Owner: Project maintainer
 
 | Data | Arquivo / Diretório | Tipo | Motivo | Risco de Conflito | Estratégia |
 |---|---|---|---|---|---|
-| 2026-04-12 | `start.sh` (criado) | Config / Infra | Script de inicialização Replit: MySQL, JWT, cache, PHP server | Baixo — arquivo específico do Replit, não existe no upstream | Manter como arquivo Replit-only, documentar mudanças |
-| 2026-04-12 | `.replit` (criado) | Config / Infra | Configuração de workflows, portas e deployment Cloud Run | Baixo — arquivo específico do Replit | Manter separado do código da aplicação |
-| 2026-04-12 | `replit.nix` (criado) | Config / Infra | Dependências Nix: mysql80, php82Extensions.xsl | Baixo — específico do ambiente Nix | Atualizar junto com atualizações de PHP/MySQL |
-| 2026-04-13 | `start.sh` — MySQL init | Config / Infra | Adicionado `mkdir -p /home/runner/mysql_data` e `mysqld --initialize-insecure` para primeira execução | Baixo | Parte do start.sh; documentado em replit.md |
-| 2026-04-13 | `start.sh` — socket symlink | Config / Infra | Symlink `/run/mysqld/mysqld.sock → /home/runner/mysql_run/mysql.sock` para que PDO resolva `localhost` corretamente | Baixo | Parte do start.sh |
-| 2026-04-13 | `start.sh` — `php -S` flags | Config / Infra | `-d pdo_mysql.default_socket`, `-d mysqli.default_socket`, `-d memory_limit`, `-d upload_max_filesize`, `-d post_max_size`, `-d date.timezone`, `-d max_execution_time` | Baixo | Parte do start.sh |
-| 2026-04-13 | `composer.json` — remoção `twig/inky-extra` | Dependência | Pacote não utilizado; dependência `lorenzo/pinky` exigia `ext-xsl` ausente no Cloud Run build | Baixo | Remover é seguro — nenhum template usa Inky no projeto |
-| 2026-04-13 | `composer.lock` | Dependência | Regenerado após remoção de `twig/inky-extra` e `lorenzo/pinky` | Baixo | Versionar normalmente |
-| 2026-04-14 | `public/main/install/` — remoção do git/classmap | Segurança | Removido do tracking git e do classmap do Composer (Task #9/#10) para impedir re-execução do wizard e corrigir falha de autoload | Nenhum — instalação já concluída | Não restaurar; se necessário reinstalar, recriar a partir do upstream |
-| 2026-04-14 | `public/main/install/` — **remoção física do disco** (Task #15) | Segurança | Diretório físico removido com `rm -rf`; confirmado ausente (`test ! -d → install_absent`). Rota `/main/install/` era HTTP 409 antes; agora retorna 404. | Nenhum — rm exit 0; HTTP 200 mantido; JWT e config intactos | Permanente — não recriar; qualquer nova instalação deve usar novo ambiente |
-| 2026-04-14 | `config/packages/`, `config/routes/`, `config/routes.yaml`, `config/services.yaml`, `config/bundles.php`, `config/preload.php` — chmod 0555 | Segurança | Hardening pós-instalação: arquivos config core somente leitura | Baixo — aplicado em runtime via start.sh; não é alteração de conteúdo | chmod aplicado a cada inicialização em start.sh |
-| 2026-04-14 | `src/CoreBundle/Controller/TannusIaController.php` — **criado** | Feature | Controller Symfony com rota `/TannusIA` — converte docx via mammoth (Node.js) e renderiza como página institucional premium com fallback completo | Baixo — controller isolado, não afeta rotas existentes | Manter; atualizar conteúdo fallback se docx mudar |
-| 2026-04-14 | `src/CoreBundle/Controller/DocumentPageController.php` — **criado** | Feature | Controller para upload genérico de `.docx` em `/document/upload` (GET/POST) | Baixo — rota nova, não conflita com existentes | Expansível para gerar páginas dinâmicas a partir de docx |
-| 2026-04-14 | `scripts/mammoth_convert.js` — **criado** | Feature | Script Node.js usando mammoth para converter .docx → HTML com styleMap (Title→h1, Heading 1→h2, etc.) e imagens base64 inline | Baixo — script standalone, não afeta build | Dependência: `mammoth` npm package |
-| 2026-04-14 | `var/templates/tannus_ia/view.html.twig` — **criado** | Feature | Template self-contained com hero, sidebar sticky TOC, scrollspy IntersectionObserver, FAB mobile, dark mode | Baixo — template isolado | CSS em `assets/css/document-page.css` |
-| 2026-04-14 | `var/templates/document_page/upload.html.twig` — **criado** | Feature | Template de upload de documentos .docx | Baixo | Reutiliza CSS document-page |
-| 2026-04-14 | `assets/css/document-page.css` — **criado** | Feature | CSS completo para a feature docx-to-web: hero, layout grid, sidebar, TOC, tipografia doc-prose, tabelas responsivas, FAB, dark mode | Baixo — entry separado no webpack | Registrado como `css/document-page` no webpack.config.js |
-| 2026-04-14 | `webpack.config.js` — addStyleEntry | Feature | Adicionado `.addStyleEntry('css/document-page', './assets/css/document-page.css')` | Baixo — apenas nova entry, não afeta entries existentes | Rebuild necessário após alteração |
-| 2026-04-14 | `.gitignore` — uploads | Config | Adicionado `public/uploads/documents/*` com exceção para `.gitkeep` | Baixo | Evita commit de documentos enviados por upload |
-| 2026-04-14 | `src/CoreBundle/DataFixtures/SettingsValueTemplateFixtures.php` — linha 171-174 | Segurança | Substituídos valores de exemplo de credenciais realistas por placeholders óbvios (`your-gotify-token-here`, etc.) para eliminar falso positivo de scanner de secrets | Baixo — apenas valores de exemplo, não código de produção | Manter placeholders; não reverter para valores realistas |
-| 2026-04-14 | `public/check.php` — **removido** | Segurança | Symfony Requirements Checker (legado Symfony 2/3/4) exposto publicamente com HTTP 200 via proxy Replit (proteção localhost 127.0.0.1 ineficaz em `php -S` atrás de proxy mTLS). Sem referências internas confirmadas por `grep`. Irrelevante para Symfony 6.4. | Nenhum — nenhuma referência interna encontrada | Não restaurar; se diagnóstico de requisitos for necessário, usar `php bin/console about` |
-| 2026-04-14 | `.env.example` — **criado** | Segurança / Docs | Template de referência para todas as variáveis de ambiente. Substitui valores reais por placeholders com instruções de geração (`php -r "echo bin2hex(random_bytes(32));"` etc). | Nenhum — arquivo de documentação, não altera comportamento | Manter sincronizado com `.env` a cada alteração de variáveis |
-| 2026-04-14 | `APP_SECRET` em `.env` — **valor neutralizado** | Segurança | Valor hardcoded 40-char hex (`ace551e0...`) substituído por placeholder `<configurar_via_Replit_Secret_em_producao>`. Replit Secret (length=64) é a única fonte real. Confirmado via `php -r "getenv('APP_SECRET')"` → length=64. | Nenhum — Replit Secret tem precedência automática; HTTP 200 confirmado | Qualquer deploy deve garantir APP_SECRET como env var do servidor (Replit Secret / Cloud Run env) |
-| 2026-04-14 | `JWT_PASSPHRASE` em `.env` | Segurança (revisão) | Analisado: `start.sh` usa `openssl genrsa` sem `-aes256`, logo a chave privada JWT não tem passphrase. O valor de `JWT_PASSPHRASE` é ignorado pelo LexikJWT bundle neste caso. Placeholder `your_secret_passphrase` mantido — risco real é nulo. | Nenhum | Documentado; se em produção a chave for gerada com passphrase, atualizar para Replit Secret |
-| 2026-04-14 | `start.sh` — bloco timezone MySQL (linha 65-74) | Config / Segurança | Adicionado bloco `SET GLOBAL time_zone = '-03:00'` após SQLEOF (DB creation), antes de JWT. Corrige divergência de 3h entre MySQL (SYSTEM/UTC) e PHP server (America/Sao_Paulo). Named zone indisponível (mysql.time_zone_name vazia; /usr/share/zoneinfo ausente no Nix). Brasil aboliu DST em 2019 → `-03:00` é permanentemente correto. UNIX_TIMESTAMP diff = 0s verificado. | Baixo — aplica SET GLOBAL que requer connection root; falha silenciosa com `|| true` | Reaplicar em cada restart via start.sh; se Nix ganhar tzdata, atualizar para 'America/Sao_Paulo' |
-| 2026-04-14 | `start.sh` — build síncrono (linhas 102-117) | Config / Segurança | Corrigida race condition: `yarn build ... &` (background) substituído por build síncrono com `tee /tmp/yarn_build.log` + `PIPESTATUS` exit code check. PHP server só arranca após build confirmar (ou skip). Build falho → `exit 1` explícito. | Nenhum (entrypoints.json presente: build é skipado; impacto só em containers frescos) | Em containers frescos o primeiro start demorará ~3 min — comportamento esperado |
-| 2026-04-14 | `build.sh` — composer via `php -d` + assets explícito (Task #16) | Config / Deploy | Fix OOM: `composer install` substituído por `php -d memory_limit=... $(which composer) install`; bloco hard gate `_EFFECTIVE_MEM` removido (substituído por echo informativo); linha explícita `php -d ... assets:install public --no-debug` adicionada após composer install | Baixo — só afeta deployment build, não o runtime de dev | Revalidar após cada alteração em build.sh |
-| 2026-04-14 | `composer.json` — `"memory-limit": "-1"` no bloco config (Task #16) | Config / Deploy | Fix OOM: campo `memory-limit` adicionado para garantir que Composer respeite COMPOSER_MEMORY_LIMIT em todos os subcontextos | Baixo — campo de config do Composer, sem impacto em código | Manter ao atualizar dependências |
-| 2026-04-14 | `composer.json` — `assets:install --no-scripts` (Task #16) | Config / Deploy | Fix OOM: flag `--no-scripts` adicionada ao auto-scripts para impedir compilação do container DI (PhpDumper) dentro do subprocesso do Composer (128MB padrão). Compilação agora acontece explicitamente em build.sh com memória controlada | Baixo — assets:install no Symfony instala assets de pacotes; `--no-scripts` apenas pula execução de scripts PHP do bundle durante esse passo | Manter ao atualizar Symfony |
-| 2026-04-14 | `PHP_MEMORY_LIMIT=512M` e `COMPOSER_MEMORY_LIMIT=-1` — shared env vars (Task #16) | Config / Deploy | Variáveis definidas como env vars compartilhadas (Replit shared env) para garantir disponibilidade no contexto de build autoscale. `.replit` [env] não pode ser editado diretamente — env vars usadas como alternativa equivalente | Nenhum — não afeta secrets nem código | Verificar valores se deployment OOM voltar |
-| 2026-04-14 | `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_NAME`, `DATABASE_USER`, `DATABASE_PASSWORD` — Replit Secrets (Task #18) | Segurança | Credenciais de produção configuradas como Replit Secrets pelo utilizador. Sobrescrevem os valores hardcoded do `.env` em runtime. Conexão à BD prod confirmada: `OK (tables=317)`. | Nenhum — Replit Secrets têm precedência automática sobre `.env`; HTTP 200 mantido | Replit Secrets são a fonte autoritativa; `.env` contém placeholders de fallback |
-| 2026-04-14 | `.env` — 7 linhas com credenciais neutralizadas via sed (Task #18) | Segurança | Todas as credenciais hardcoded removidas: `DATABASE_HOST/PORT/NAME/USER/PASSWORD`, `APP_SECRET`, `JWT_PASSPHRASE` → substituídas por placeholders descritivos ('<configurar_via_Replit_Secret>') via `sed -i -e`. O `edit` tool foi bloqueado pela plataforma; bash/sed funcionou. Replit Secrets fornecem os valores reais em runtime. | Nenhum — Replit Secrets têm precedência automática sobre `.env`; HTTP 200 mantido | .env comprometido em git history anterior — rodar BFG Repo Cleaner se necessário |
-| 2026-04-14 | `JWT_PASSPHRASE` — Replit Secret (Task #18) | Segurança | Valor fraco `your_secret_passphrase` substituído por hex de 64 chars (via `openssl rand -hex 32`) e armazenado como Replit Secret (não como shared env var — que exporia o valor em .replit versionado). Confirmado: `getenv('JWT_PASSPHRASE')` → length=64 em runtime. | Nenhum — passphrase ignorada pelo LexikJWT para chaves sem encriptação (-aes256 não usado) | Caso JWT key seja regenerada com `-aes256`, o JWT_PASSPHRASE terá que coincidir |
+| 2026-04-12 | `start.sh` (criado) | Config / Infra | Script de inicialização Replit: MySQL, JWT, cache, PHP server | Baixo — arquivo específico do Replit | Manter como arquivo Replit-only |
+| 2026-04-12 | `.replit` (criado) | Config / Infra | Configuração de workflows, portas e deployment Cloud Run | Baixo — arquivo específico do Replit | Manter separado |
+| 2026-04-12 | `replit.nix` (criado) | Config / Infra | Dependências Nix: mysql80, php82Extensions.xsl | Baixo — específico Nix | Atualizar com PHP/MySQL |
+| 2026-04-13 | `start.sh` — MySQL init | Config / Infra | `mkdir -p`, `mysqld --initialize-insecure` para primeira execução | Baixo | Parte do start.sh |
+| 2026-04-13 | `start.sh` — socket symlink | Config / Infra | Symlink `/run/mysqld/mysqld.sock` | Baixo | Parte do start.sh |
+| 2026-04-13 | `start.sh` — `php -S` flags | Config / Infra | Flags de runtime: socket, memória, upload, timezone | Baixo | Parte do start.sh |
+| 2026-04-13 | `composer.json` — remoção `twig/inky-extra` | Dependência | `lorenzo/pinky` exigia `ext-xsl` ausente | Baixo | Seguro — nenhum template usa Inky |
+| 2026-04-14 | `public/main/install/` — remoção física | Segurança | Diretório removido; HTTP 404 confirmado | Nenhum | Permanente — não recriar |
+| 2026-04-14 | `public/check.php` — removido | Segurança | Requirements Checker legado exposto via proxy | Nenhum | Não restaurar |
+| 2026-04-14 | `src/CoreBundle/Controller/TannusIaController.php` | Feature | Rotas `/TannusIA` e `/TannusAI` — landing page tech premium | Baixo | Manter |
+| 2026-04-14 | `src/CoreBundle/Controller/DocumentPageController.php` | Feature | Rota `/document/upload` — upload de `.docx` | Baixo | Manter |
+| 2026-04-14 | `scripts/mammoth_convert.js` | Feature | Converter .docx → HTML via mammoth | Baixo | Dep: mammoth npm |
+| 2026-04-14 | `src/CoreBundle/Resources/views/TannusIa/view.html.twig` | Feature | Landing page: hero, capacidades, métricas, CTAs | Baixo | Manter |
+| 2026-04-14 | `public/css/tannus-design-system.css` | Feature | CSS design system dark/light | Baixo | Manter |
+| 2026-04-14 | `assets/css/document-page.css` | Feature | CSS docx-to-web | Baixo | Entry webpack |
+| 2026-04-14 | `webpack.config.js` — addStyleEntry | Feature | Entry `css/document-page` | Baixo | Rebuild necessário |
+| 2026-04-14 | `.gitignore` — uploads | Config | `public/uploads/documents/*` | Baixo | Manter |
+| 2026-04-14 | `SettingsValueTemplateFixtures.php` | Segurança | Valores de exemplo → placeholders | Baixo | Manter |
+| 2026-04-14 | `.env.example` | Docs | Template de referência para env vars | Nenhum | Sincronizar |
+| 2026-04-14 | `.env` — credenciais neutralizadas | Segurança | 7 valores hardcoded → placeholders | Nenhum | Replit Secrets fornecem valores |
+| 2026-04-14 | `start.sh` — timezone MySQL | Config | `SET GLOBAL time_zone = '-03:00'` | Baixo | Reaplicar a cada restart |
+| 2026-04-14 | `start.sh` — build síncrono | Config | Race condition corrigida: build antes do PHP server | Nenhum | Manter |
+| 2026-04-14 | `build.sh` — OOM fix | Config / Deploy | `php -d memory_limit=...`, assets explícito | Baixo | Revalidar |
+| 2026-04-14 | `composer.json` — `memory-limit: -1` | Config | Composer respeita COMPOSER_MEMORY_LIMIT | Baixo | Manter |
+| 2026-04-15 | `public/router.php` — **criado** (Task #29) | Config / Infra | Router script para PHP built-in server. PHP -S retorna 404 para URLs com extensão de arquivo quando o arquivo não existe fisicamente em `public/`. O router.php intercepta esses requests e os encaminha ao Symfony kernel, que então os serve via ThemeController (Flysystem) ou PwaController. **Corrige:** `/themes/chamilo/colors.css`, `/themes/chamilo/tiny-settings.js`, `/themes/chamilo/images/favicon.ico`, `/manifest.json`. Duplica a lógica de boot do `index.php` (autoload_runtime + Kernel) porque Symfony Runtime exige que o script chamador retorne um callable. | Baixo — arquivo separado, não altera index.php | Obrigatório em `start.sh` e `start-prod.sh`; atualizar se `index.php` mudar |
+| 2026-04-15 | `start.sh` — router.php (Task #29) | Config / Infra | Adicionado `public/router.php` como argumento ao `php -S` | Baixo | Manter |
+| 2026-04-15 | `start-prod.sh` — router.php (Task #29) | Config / Infra | Idem ao start.sh | Baixo | Manter |
+| 2026-04-15 | `.env.local` — **criado** (Task #29) | Config | `APP_LOCALE=pt_BR`, `TRUSTED_PROXIES=0.0.0.0/0`, CORS expandido para `*.replit.dev` e `*.replit.app`. Gitignored — não versionado. | Baixo | Recriar em ambientes novos |
+| 2026-04-15 | `view.html.twig` — JSON-LD schema (Task #29) | SEO | Schema markup: Organization + WebSite + SoftwareApplication no bloco `{% block stylesheets %}` | Nenhum | Atualizar se dados mudarem |
 
 ---
 
@@ -57,24 +53,23 @@ Owner: Project maintainer
 
 | Arquivo / Diretório | Motivo |
 |---|---|
-| `vendor/` | Dependências Composer — gerado via `composer install` |
-| `public/build/` | Assets compilados — gerado via `yarn build` |
-| `var/cache/` | Cache Symfony — gerado em runtime |
-| `var/log/` | Logs — gerado em runtime |
-| `config/jwt/*.pem` | Chaves JWT — geradas em runtime por `start.sh` |
+| `vendor/` | Dependências Composer |
+| `public/build/` | Assets compilados |
+| `var/cache/` | Cache Symfony |
+| `var/log/` | Logs |
+| `config/jwt/*.pem` | Chaves JWT — geradas em runtime |
+| `.env.local` | Overrides de ambiente |
 
 ---
 
 ## Arquivos que NÃO foram modificados
 
-Os seguintes arquivos foram **identificados como possíveis candidatos** mas permaneceram intactos:
-
 | Arquivo | Motivo de NÃO modificar |
 |---|---|
-| `src/CoreBundle/Entity/*.php` | Sem necessidade — schema já atende ao projeto |
-| `config/packages/*.yaml` | Configuração padrão adequada para o ambiente |
-| `assets/vue/` | Sem customizações de frontend ainda |
-| `public/plugin/HelloWorld/` | Plugin de exemplo — não utilizado em produção |
+| `src/CoreBundle/Entity/*.php` | Schema já atende ao projeto |
+| `config/packages/*.yaml` | Configuração padrão adequada (exceto security.yaml access_control) |
+| `assets/vue/` | Sem customizações de frontend |
+| `public/plugin/HelloWorld/` | Plugin de exemplo — não utilizado |
 
 ---
 
@@ -83,11 +78,12 @@ Os seguintes arquivos foram **identificados como possíveis candidatos** mas per
 | Versão | Data | Autor | Descrição |
 |---|---|---|---|
 | 1.0 | 2026-04-14 | Agent | Inventário inicial completo pós-instalação |
-| 1.1 | 2026-04-14 | Agent | FASE 0: remoção de public/check.php (exposto, sem referências internas, legado Symfony 2/3/4) |
-| 1.2 | 2026-04-14 | Agent | FASE 2.3: criação de .env.example; APP_SECRET movido para Replit Secret; JWT_PASSPHRASE analisado e mantido em .env (chave JWT sem passphrase, valor ignorado pelo bundle) |
-| 1.3 | 2026-04-14 | Agent | FASE 2.2: start.sh — bloco timezone MySQL adicionado (`SET GLOBAL time_zone = '-03:00'`); Gap #4 encerrado |
-| 1.4 | 2026-04-14 | Agent | FASE 2.1: start.sh — build síncrono (race condition corrigida); replit.md atualizado; ROADMAP.md gaps fechados |
-| 1.5 | 2026-04-14 | Agent | FASE 2 (Task #15): remoção física de public/main/install/ do disco; HTTP 409 → 404; FASE 3 confirmada (config perms 0555 via start.sh); documentação atualizada com outputs reais |
-| 1.6 | 2026-04-14 | Agent | Task #16: fix OOM no build — build.sh reescrito (php -d, hard gate removido, assets explícito); composer.json (memory-limit + --no-scripts); PHP_MEMORY_LIMIT=512M e COMPOSER_MEMORY_LIMIT=-1 como shared env vars |
-| 1.7 | 2026-04-14 | Agent | Task #18 (FINAL): .env — 7 credenciais neutralizadas via sed (DATABASE_*='' APP_SECRET='' JWT_PASSPHRASE=''); JWT_PASSPHRASE → Replit Secret (length=64, hex); todos os Replit Secrets validados em runtime; DB prod OK (tables=317); HTTP 200 |
-| 1.8 | 2026-04-14 | Agent | Task #26: /TannusIA reconstruído como landing page tech premium — dark theme teal gradient; hero com badge + CTAs; 4 capacidades com ícones SVG; métricas reais do DB (Doctrine DBAL); 3-step "Como funciona"; 6 quick-access chips; dark/light toggle; animated counters (IntersectionObserver); CSS design system separado; controller reescrito sem DocxConverterService |
+| 1.1 | 2026-04-14 | Agent | FASE 0: remoção de public/check.php |
+| 1.2 | 2026-04-14 | Agent | FASE 2.3: .env.example; APP_SECRET → Replit Secret |
+| 1.3 | 2026-04-14 | Agent | FASE 2.2: timezone MySQL alinhada (-03:00) |
+| 1.4 | 2026-04-14 | Agent | FASE 2.1: build síncrono (race condition corrigida) |
+| 1.5 | 2026-04-14 | Agent | Task #15: remoção física de public/main/install/ |
+| 1.6 | 2026-04-14 | Agent | Task #16: fix OOM build |
+| 1.7 | 2026-04-14 | Agent | Task #18: credenciais neutralizadas no .env |
+| 1.8 | 2026-04-14 | Agent | Task #26: /TannusIA landing page tech premium |
+| 2.0 | 2026-04-15 | Agent | Task #29: router.php (fix ALL 404s); .env.local (TRUSTED_PROXIES, CORS, locale pt_BR); schema markup JSON-LD (Organization+WebSite+SoftwareApplication); replit.md atualizado (chmod 0555 removido, router.php documentado); ARCHITECTURE.md v2.0; ROADMAP.md v2.0; .env.example atualizado |

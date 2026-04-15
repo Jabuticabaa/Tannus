@@ -1,8 +1,8 @@
 # Chamilo LMS 2.x — Roadmap de Desenvolvimento
 
 ---
-Version: 1.3
-Last updated: 2026-04-14 (FASE 2.1 — fechamento do ciclo de hardening)
+Version: 2.0
+Last updated: 2026-04-15 (Task #29 — debug, config, deploy, docs)
 Status: Active
 Owner: Project maintainer
 
@@ -43,7 +43,7 @@ criaria conflito e regressões.
 |---|---|---|
 | **Banco de dados persistente** | MySQL local no Cloud Run é efêmero: todos os dados são perdidos a cada redeploy | Perda total de dados em produção |
 | **Servidor web adequado** | `php -S` é single-thread; colapsa com múltiplos usuários simultâneos | Indisponibilidade em produção |
-| **Secrets em texto plano no .env** | `APP_SECRET`, senha do banco e outros valores sensíveis estão no `.env` commitado | Risco de segurança se o repositório for público |
+| ~~**Secrets em texto plano no .env**~~ | ✅ RESOLVIDO (Task #18) — APP_SECRET + JWT_PASSPHRASE como Replit Secrets; .env neutralizado com placeholders | — |
 
 ### 🟡 Importante — afeta qualidade e manutenibilidade
 
@@ -54,7 +54,7 @@ criaria conflito e regressões.
 | **xsl extension não carregada** | `pkgs.php82Extensions.xsl` declarado em `replit.nix` mas `php --ri xsl` retorna "Extension 'xsl' not present." Confirmado em FASE 1. `twig/inky-extra` foi removido em Task #5 por depender de xsl. | Qualquer código XSLT falhará silenciosamente |
 | **Doctrine migrations: tabela `version` ausente** | Banco criado pelo wizard (317 tabelas diretas). `doctrine:migrations:status` mostra 0/344 executadas e tabela `version` inexistente. Rodar `doctrine:migrations:migrate` sem preparação causará erros. Ação correta (com autorização): `doctrine:migrations:sync-metadata-storage` + `doctrine:migrations:version --add --all` | Risco de breaking change em updates futuros |
 | **PHP CLI timezone = UTC** | `php -r "echo date_default_timezone_get();"` retorna UTC. `php -S` usa `-d date.timezone=America/Sao_Paulo`. Scripts `bin/console` e cron jobs rodam em UTC. | Timestamps em logs CLI podem divergir do servidor |
-| **Frontend build race condition** | `start.sh` inicia `yarn build ... &` em background enquanto `php -S` já aceita conexões. Se `entrypoints.json` for apagado, primeiras requisições retornam 500. | Instabilidade em fresh containers |
+| ~~**Frontend build race condition**~~ | ✅ RESOLVIDO (Task #10) — build síncrono com exit code check | — |
 | **Sem backup automatizado** | Nenhuma rotina de backup do banco configurada | Risco de perda de dados |
 | **Sem monitoramento/alertas** | Nenhum sistema de health check ou alertas configurado | Sem visibilidade de falhas |
 
@@ -110,7 +110,9 @@ criaria conflito e regressões.
 | Banco de dados externo persistente | Pré-requisito para qualquer dado real de produção | Escolher provedor (PlanetScale, Railway, etc.) |
 | ~~Secrets no Replit Secrets (não no .env)~~ | ✅ RESOLVIDO — APP_SECRET → Replit Secret (length=64); .env neutralizado (placeholder); .env.example criado | Task #7 concluída |
 | ~~Alinhar timezone MySQL → America/Sao_Paulo~~ | ✅ RESOLVIDO — `SET GLOBAL time_zone = '-03:00'` via start.sh; UNIX_TIMESTAMP diff = 0s | Task #8 concluída |
-| ~~Corrigir race condition `yarn build &` em start.sh~~ | ✅ RESOLVIDO — build síncrono + `PIPESTATUS` exit code check; PHP server não arranca antes do build | Task #10 concluída |
+| ~~Corrigir race condition `yarn build &` em start.sh~~ | ✅ RESOLVIDO — build síncrono + `PIPESTATUS` exit code check | Task #10 concluída |
+| ~~Fix 404s: theme assets + manifest.json~~ | ✅ RESOLVIDO (Task #29) — router.php encaminha URLs com extensão ao Symfony kernel | Task #29 concluída |
+| ~~CORS + TRUSTED_PROXIES para Replit proxy~~ | ✅ RESOLVIDO (Task #29) — .env.local com TRUSTED_PROXIES=0.0.0.0/0 e CORS expandido | Task #29 concluída |
 | Investigar xsl extension (declarada mas não ativa) | `php --ri xsl` → "not present" apesar de estar em replit.nix | — |
 | Inicializar tabela Doctrine migrations (pós-wizard) | `doctrine:migrations:sync-metadata-storage` + `--add --all` — sem isso updates futuros são arriscados | Autorização explícita necessária |
 | Ativar e-mail transacional | Notificações de plataforma não funcionam (MAILER_DSN=null://null) | Escolher provedor SMTP |
@@ -133,3 +135,4 @@ criaria conflito e regressões.
 | 1.2 | 2026-04-14 | Agent | FASE 2.2 (Task #8): Gap #4 resolvido — MySQL timezone alinhada com PHP via `-03:00` offset em start.sh |
 | 1.3 | 2026-04-14 | Agent | FASE 2.1 (Task #10): Race condition corrigida — build síncrono + exit code check |
 | 1.4 | 2026-04-14 | Agent | Task #20: Feature docx-to-web — rota /TannusIA + /document/upload + mammoth conversion |
+| 2.0 | 2026-04-15 | Agent | Task #29: router.php fix 404s; .env.local CORS/proxy; schema JSON-LD; documentação v2.0 |

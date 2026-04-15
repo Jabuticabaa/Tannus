@@ -1,8 +1,8 @@
 # Chamilo LMS 2.x — Arquitetura do Projeto
 
 ---
-Version: 1.0
-Last updated: 2026-04-14
+Version: 2.0
+Last updated: 2026-04-15
 Status: Active
 Owner: Project maintainer
 
@@ -46,7 +46,7 @@ Owner: Project maintainer
 | `public/build/` | Assets compilados (gitignored, gerado em runtime) | 🚫 Não versionar |
 | `public/main/` | Código legado PHP (legacy layer) | ⚠️ Minimizar alterações |
 | `public/plugin/` | 56 plugins nativos do Chamilo | ✅ Zona segura para extensões |
-| `config/` | Configuração Symfony (packages, routes, services) | ⚠️ Core protegido (chmod 0555) |
+| `config/` | Configuração Symfony (packages, routes, services) | ⚠️ Core — documentar alterações |
 | `config/jwt/` | Chaves JWT (geradas em runtime) | 🔑 Writable — regenerado a cada fresh container |
 | `var/` | Cache, logs, sessões (runtime) | 🚫 Não versionar |
 | `vendor/` | Dependências Composer | 🚫 Nunca editar diretamente |
@@ -117,15 +117,19 @@ Owner: Project maintainer
 2. Inicia `mysqld` com socket customizado
 3. Cria symlink do socket para o caminho padrão do PHP
 4. Cria banco e usuário `chamilo` se não existirem
-5. Gera chaves JWT se ausentes
-6. Aplica `chmod 0555` nos arquivos config sensíveis
+5. Alinha timezone MySQL (-03:00)
+6. Gera chaves JWT se ausentes
 7. Limpa cache Symfony
-8. Inicia `php -S` com flags de runtime (memória, upload, timezone, socket)
+8. Build frontend assets síncronos (se entrypoints.json ausente)
+9. Inicia `php -S` com flags de runtime e `router.php`
+
+### Router Script (`public/router.php`)
+PHP's built-in server returns 404 for URLs with file extensions when no matching file exists in `public/`. The `router.php` script intercepts these requests and forwards them to Symfony, which serves theme assets via ThemeController (Flysystem `var/themes/`) and PWA manifest via PwaController. Required argument in both `start.sh` and `start-prod.sh`.
 
 ### Deployment
-- **Target**: Cloud Run (`deploymentTarget = "cloudrun"`)
-- **Build**: `composer install --no-dev --optimize-autoloader && yarn build`
-- **Run**: `bash start.sh`
+- **Target**: Cloud Run autoscale (`deploymentTarget = "autoscale"`)
+- **Build**: `bash build.sh` (composer, JWT keys, cache warmup, yarn build)
+- **Run**: `bash start-prod.sh` (PHP server with router.php on ${PORT:-5000})
 - **Porta**: 5000 (interna) → 80 (externa)
 
 ---
@@ -133,9 +137,14 @@ Owner: Project maintainer
 ## Fluxo de Request
 
 ```
-Usuário → :80 (Replit proxy) → :5000 (php -S) → public/index.php (Symfony kernel)
-                                                → public/legacy.php (código legado /main/)
-                                                → public/main/*.php (pages legadas)
+Usuário → :80 (Replit proxy mTLS) → :5000 (php -S + router.php)
+   ├── Arquivo estático em public/ ? → serve direto (return false)
+   └── Else → public/router.php → Symfony Kernel
+       ├── /themes/{name}/{path} → ThemeController → Flysystem (var/themes/)
+       ├── /manifest.json → PwaController
+       ├── /TannusIA, /TannusAI → TannusIaController
+       ├── /api/* → API Platform
+       └── /* → IndexController / Controllers core
 ```
 
 ---
