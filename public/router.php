@@ -1,4 +1,6 @@
 <?php
+// MAINTENANCE: This script duplicates Symfony Runtime boot logic from public/index.php.
+// If index.php boot changes (autoload_runtime, Kernel class, etc.), update this file too.
 
 if (php_sapi_name() === 'cli-server') {
     $url = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
