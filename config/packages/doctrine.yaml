@@ -10,7 +10,7 @@ doctrine:
         charset: utf8mb4
         options:
             1002: "SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))"
-            1001: 5
+            2: 5
         default_table_options:
             charset: utf8mb4
             collate: utf8mb4_unicode_ci
