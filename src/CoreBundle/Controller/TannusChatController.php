@@ -13,6 +13,9 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class TannusChatController extends BaseController
 {
+    private const MAX_MESSAGES = 40;
+    private const MAX_CONTENT_LENGTH = 2000;
+
     #[Route('/api/tannus-chat', name: 'tannus_chat', methods: ['POST'])]
     public function chat(
         Request $request,
@@ -21,18 +24,48 @@ class TannusChatController extends BaseController
         LoggerInterface $logger,
     ): JsonResponse {
         $body = json_decode($request->getContent(), true);
-        $message = trim((string) ($body['message'] ?? ''));
 
-        if ($message === '') {
-            return $this->json(['error' => 'message is required', 'reply' => ''], 400);
+        $messages = $body['messages'] ?? null;
+
+        if (!is_array($messages) || count($messages) === 0) {
+            return $this->json(['error' => 'messages array is required', 'reply' => ''], 400);
         }
 
-        if (mb_strlen($message) > 2000) {
-            return $this->json(['error' => 'message too long', 'reply' => ''], 400);
+        if (count($messages) > self::MAX_MESSAGES) {
+            return $this->json(['error' => 'too many messages in history', 'reply' => ''], 400);
+        }
+
+        $validated = [];
+        foreach ($messages as $msg) {
+            if (!is_array($msg)) {
+                return $this->json(['error' => 'each message must be an object', 'reply' => ''], 400);
+            }
+
+            $role = $msg['role'] ?? '';
+            $content = $msg['content'] ?? '';
+
+            if (!in_array($role, ['user', 'assistant'], true)) {
+                return $this->json(['error' => 'message role must be user or assistant', 'reply' => ''], 400);
+            }
+
+            if (!is_string($content) || trim($content) === '') {
+                return $this->json(['error' => 'message content must be a non-empty string', 'reply' => ''], 400);
+            }
+
+            if (mb_strlen($content) > self::MAX_CONTENT_LENGTH) {
+                return $this->json(['error' => 'message content too long', 'reply' => ''], 400);
+            }
+
+            $validated[] = ['role' => $role, 'content' => trim($content)];
+        }
+
+        $lastMessage = $validated[count($validated) - 1];
+        if ($lastMessage['role'] !== 'user') {
+            return $this->json(['error' => 'last message must be from user', 'reply' => ''], 400);
         }
 
         try {
-            $reply = $perplexity->chat($message);
+            $reply = $perplexity->chat($validated);
             $logger->info('TannusChat: Perplexity responded', ['chars' => mb_strlen($reply)]);
 
             return $this->json(['reply' => $reply]);
@@ -43,7 +76,7 @@ class TannusChatController extends BaseController
         }
 
         try {
-            $reply = $openRouter->chat($message);
+            $reply = $openRouter->chat($validated);
             $logger->info('TannusChat: OpenRouter responded', ['chars' => mb_strlen($reply)]);
 
             return $this->json(['reply' => $reply]);

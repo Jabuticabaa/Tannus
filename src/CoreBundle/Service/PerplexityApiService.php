@@ -9,7 +9,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class PerplexityApiService
 {
-    private const API_URL = 'https://api.perplexity.ai/chat/completions';
+    private const API_URL = 'https://api.perplexity.ai/v1/sonar';
     private const DEFAULT_MODEL = 'sonar';
     private const SYSTEM_PROMPT = <<<'PROMPT'
 Você é o assistente virtual da Tannus IA, uma plataforma de inteligência artificial integrada ao Chamilo LMS para educação corporativa e institucional.
@@ -29,13 +29,28 @@ PROMPT;
         private readonly LoggerInterface $logger,
     ) {}
 
-    public function chat(string $message, string $model = self::DEFAULT_MODEL): string
+    /**
+     * Send a chat request to the Perplexity API.
+     *
+     * @param array<int, array{role: string, content: string}> $messages
+     *   Conversation history in OpenAI messages format (role: user|assistant).
+     *   The system prompt is prepended automatically — do not include it here.
+     * @param string $model Perplexity model identifier
+     *
+     * @return string The assistant reply text
+     */
+    public function chat(array $messages, string $model = self::DEFAULT_MODEL): string
     {
         $apiKey = $_SERVER['PERPLEXITY_API_KEY'] ?? getenv('PERPLEXITY_API_KEY') ?? '';
 
         if (empty($apiKey)) {
             throw new \RuntimeException('PERPLEXITY_API_KEY not configured');
         }
+
+        $payload = array_merge(
+            [['role' => 'system', 'content' => self::SYSTEM_PROMPT]],
+            $messages,
+        );
 
         $response = $this->httpClient->request('POST', self::API_URL, [
             'headers' => [
@@ -45,10 +60,7 @@ PROMPT;
             ],
             'json' => [
                 'model' => $model,
-                'messages' => [
-                    ['role' => 'system', 'content' => self::SYSTEM_PROMPT],
-                    ['role' => 'user', 'content' => $message],
-                ],
+                'messages' => $payload,
                 'max_tokens' => 512,
                 'temperature' => 0.7,
             ],

@@ -39,7 +39,16 @@ PROMPT;
         private readonly LoggerInterface $logger,
     ) {}
 
-    public function chat(string $message): string
+    /**
+     * Send a chat request to the OpenRouter API.
+     *
+     * @param array<int, array{role: string, content: string}> $messages
+     *   Conversation history in OpenAI messages format (role: user|assistant).
+     *   The system prompt is prepended automatically — do not include it here.
+     *
+     * @return string The assistant reply text
+     */
+    public function chat(array $messages): string
     {
         $apiKey = $_SERVER['OPENROUTER_API_KEY'] ?? getenv('OPENROUTER_API_KEY') ?? '';
 
@@ -48,6 +57,11 @@ PROMPT;
         }
 
         $model = $_SERVER['OPENROUTER_MODEL'] ?? getenv('OPENROUTER_MODEL') ?: self::DEFAULT_MODEL;
+
+        $payload = array_merge(
+            [['role' => 'system', 'content' => self::SYSTEM_PROMPT]],
+            $messages,
+        );
 
         $response = $this->httpClient->request('POST', self::API_URL, [
             'headers' => [
@@ -59,10 +73,7 @@ PROMPT;
             ],
             'json' => [
                 'model' => $model,
-                'messages' => [
-                    ['role' => 'system', 'content' => self::SYSTEM_PROMPT],
-                    ['role' => 'user', 'content' => $message],
-                ],
+                'messages' => $payload,
                 'max_tokens' => 512,
                 'temperature' => 0.7,
             ],

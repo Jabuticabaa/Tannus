@@ -668,6 +668,19 @@ function filterAfterClear(pid, list) {
   return list.filter((m) => Number(m?.date) > cut)
 }
 
+/**
+ * Tannus AI conversation history (client-side only, session-scoped).
+ * Stores {role: 'user'|'assistant', content: string} pairs sent to /api/tannus-chat.
+ * Cleared on chat close, conversation reset, or page unload.
+ */
+const tannusChatHistory = ref([])
+
+let aiMsgCounter = -1000
+
+function clearTannusChatHistory() {
+  tannusChatHistory.value = []
+}
+
 /** Pending optimistic messages */
 const pendingByPeer = reactive(new Map())
 function addPending(pid, tempId, msg, ts) {
@@ -1051,6 +1064,7 @@ function resetAiThreadCache() {
   unreadByPeer.set(AI_PEER_ID, 0)
   lastSeenMsgIdByPeer.set(AI_PEER_ID, 0)
   lastIdByPeer.set(AI_PEER_ID, 0)
+  clearTannusChatHistory()
 }
 
 async function openConversation(peer) {
@@ -1067,7 +1081,7 @@ async function openConversation(peer) {
   }
 
   const existing = messagesByPeer.get(pid)
-  if (!existing || existing.length === 0) {
+  if (pid !== AI_PEER_ID && (!existing || existing.length === 0)) {
     await getPreviousMessages()
   }
 
@@ -1396,25 +1410,70 @@ async function send() {
   sending.value = true
 
   try {
-    const extra = pid === AI_PEER_ID ? { ai_provider: tutorCtx.provider } : {}
-    const res = await post(API.send, { to: pid, message: raw, chat_sec_token: me.secToken, ...extra })
+    if (pid === AI_PEER_ID) {
+      const userMsg = { role: "user", content: raw }
+      const historyToSend = [...tannusChatHistory.value, userMsg]
 
-    if (res?.assistant?.id) {
-      const arr2 = messagesByPeer.get(pid) || []
-      if (!arr2.find((m) => Number(m.id) === Number(res.assistant.id))) {
-        messagesByPeer.set(pid, [...arr2, res.assistant].sort(byChronoId))
+      const resp = await fetch("/api/tannus-chat", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: historyToSend }),
+      })
+
+      if (!resp.ok) {
+        throw new Error(`TannusChat HTTP ${resp.status}`)
       }
+
+      const data = await resp.json()
+      const replyText = data?.reply || ""
+
+      if (!replyText) {
+        throw new Error("TannusChat: empty reply from server")
+      }
+
+      tannusChatHistory.value.push(userMsg)
+      tannusChatHistory.value.push({ role: "assistant", content: replyText })
+
+      const confirmedId = aiMsgCounter--
+      replaceTempId(pid, tempId, { id: confirmedId, recd: 2, date: nowSec })
+      removePending(pid, tempId)
+
+      const assistantId = aiMsgCounter--
+      const arr2 = messagesByPeer.get(pid) || []
+      const assistantMsg = {
+        id: assistantId,
+        from_user_info: { id: AI_PEER_ID, complete_name: "AI Tutor" },
+        f: AI_PEER_ID,
+        message: replyText,
+        date: nowSec + 1,
+        recd: 2,
+        pending: false,
+      }
+      messagesByPeer.set(pid, [...arr2, assistantMsg].sort(byChronoId))
       requestAnimationFrame(() => {
         const el = scrollBox.value
         if (el) el.scrollTop = el.scrollHeight
       })
-    }
+    } else {
+      const res = await post(API.send, { to: pid, message: raw, chat_sec_token: me.secToken })
 
-    if (res && typeof res === "object" && Number(res.id) > 0) {
-      if (res.sec_token) me.secToken = res.sec_token
-      replaceTempId(pid, tempId, { id: Number(res.id), recd: 2, date: nowSec })
-      removePending(pid, tempId)
-      return
+      if (res?.assistant?.id) {
+        const arr2 = messagesByPeer.get(pid) || []
+        if (!arr2.find((m) => Number(m.id) === Number(res.assistant.id))) {
+          messagesByPeer.set(pid, [...arr2, res.assistant].sort(byChronoId))
+        }
+        requestAnimationFrame(() => {
+          const el = scrollBox.value
+          if (el) el.scrollTop = el.scrollHeight
+        })
+      }
+
+      if (res && typeof res === "object" && Number(res.id) > 0) {
+        if (res.sec_token) me.secToken = res.sec_token
+        replaceTempId(pid, tempId, { id: Number(res.id), recd: 2, date: nowSec })
+        removePending(pid, tempId)
+      }
     }
   } catch {
     // keep pending bubble
@@ -1431,10 +1490,8 @@ async function clearConversation() {
     const pid = activePeer.value.id
 
     if (Number(pid) === AI_PEER_ID) {
-      // Server reset for AI tutor (course-only)
-      await post(API.tutor_reset, { ai_provider: tutorCtx.provider || "" })
+      clearTannusChatHistory()
       resetAiThreadCache()
-      await getPreviousMessages()
     } else {
       const nowSec = Math.floor(Date.now() / 1000)
       clearedAtByPeer.set(pid, nowSec)
@@ -1505,6 +1562,7 @@ window.addEventListener("online", () => {
   if (userStatus.value === 1) startHeartbeat()
 })
 window.addEventListener("offline", () => scheduler.stop())
+window.addEventListener("beforeunload", () => clearTannusChatHistory())
 
 function registerLegacyChatGlobals() {
   const handler = (id, name) => {
@@ -1586,7 +1644,6 @@ async function onNavigationChanged() {
       return
     }
     resetAiThreadCache()
-    await getPreviousMessages()
     requestAnimationFrame(() => {
       const el = scrollBox.value
       if (el) el.scrollTop = el.scrollHeight
@@ -1671,6 +1728,7 @@ async function toggleDock(v) {
     }
   } else {
     activePeer.value = null
+    clearTannusChatHistory()
     clearInterval(contactsTimer)
     contactsTimer = null
     recomputeUnreadFromLocal()
