@@ -46,6 +46,13 @@ Owner: Project maintainer
 | 2026-04-15 | `start-prod.sh` — router.php (Task #29) | Config / Infra | Idem ao start.sh | Baixo | Manter |
 | 2026-04-15 | `.env.local` — **criado** (Task #29) | Config | `APP_LOCALE=pt_BR`, `TRUSTED_PROXIES=0.0.0.0/0`, CORS expandido para `*.replit.dev` e `*.replit.app`. Gitignored — não versionado. | Baixo | Recriar em ambientes novos |
 | 2026-04-15 | `view.html.twig` — JSON-LD schema (Task #29) | SEO | Schema markup: Organization + WebSite + SoftwareApplication no bloco `{% block stylesheets %}` | Nenhum | Atualizar se dados mudarem |
+| 2026-04-15 | `src/CoreBundle/Controller/TannusChatController.php` (Task #28) | Feature | Endpoint POST /api/tannus-chat — proxy para Perplexity (primário) e OpenRouter (fallback); retorna {reply} | Baixo | Manter |
+| 2026-04-15 | `src/CoreBundle/Service/PerplexityApiService.php` (Task #28) | Feature | Serviço HTTP para Perplexity API (sonar); system prompt contextualizado Tannus IA | Baixo | Manter |
+| 2026-04-15 | `src/CoreBundle/Service/OpenRouterApiService.php` (Task #28) | Feature | Serviço HTTP para OpenRouter API (meta-llama/llama-3.1-8b-instruct:free padrão); configurável via OPENROUTER_MODEL | Baixo | Manter |
+| 2026-04-15 | `public/js/tannus-chat.js` (Task #28) | Feature | Widget chat vanilla JS: FAB toggle, fetch POST, bolhas de mensagem, indicador digitando, scroll automático, ESC fecha | Baixo | Manter |
+| 2026-04-15 | `public/css/tannus-design-system.css` — chat classes (Task #28) | Feature | Classes: .chat-fab, .chat-panel, .chat-messages, .chat-bubble-user, .chat-bubble-ai, .chat-typing, .chat-input-row; responsivo fullscreen em mobile | Baixo | Manter |
+| 2026-04-15 | `config/packages/security.yaml` (Task #28) | Config | PUBLIC_ACCESS adicionado para /api/tannus-chat | Baixo | Manter |
+| 2026-04-15 | Replit Secrets: PERPLEXITY_API_KEY, OPENROUTER_API_KEY (Task #28) | Config | Chaves de API registradas como Replit Secrets — não expostas no código | Nenhum | Gerenciar via Replit Secrets |
 
 ---
 
@@ -78,7 +85,6 @@ Owner: Project maintainer
 | Versão | Data | Autor | Descrição |
 |---|---|---|---|
 | 1.0 | 2026-04-14 | Agent | Inventário inicial completo pós-instalação |
-<<<<<<< HEAD
 | 1.1 | 2026-04-14 | Agent | FASE 0: remoção de public/check.php (exposto, sem referências internas, legado Symfony 2/3/4) |
 | 1.2 | 2026-04-14 | Agent | FASE 2.3: criação de .env.example; APP_SECRET movido para Replit Secret; JWT_PASSPHRASE analisado e mantido em .env (chave JWT sem passphrase, valor ignorado pelo bundle) |
 | 1.3 | 2026-04-14 | Agent | FASE 2.2: start.sh — bloco timezone MySQL adicionado (`SET GLOBAL time_zone = '-03:00'`); Gap #4 encerrado |
@@ -89,6 +95,7 @@ Owner: Project maintainer
 | 1.8 | 2026-04-14 | Agent | Task #26: /TannusIA reconstruído como landing page tech premium — dark theme teal gradient; hero com badge + CTAs; 4 capacidades com ícones SVG; métricas reais do DB (Doctrine DBAL); 3-step "Como funciona"; 6 quick-access chips; dark/light toggle; animated counters (IntersectionObserver); CSS design system separado; controller reescrito sem DocxConverterService |
 | 1.9 | 2026-04-15 | Agent | Task #27: migração de rotas — / e /home → TannusIaController (landing page premium); /TannusIA e /TannusAI → TannusPitchController (pitch deck DOCX interativo); IndexController: rotas / e /home removidas; security.yaml: PUBLIC_ACCESS para /, /home, /api/tannus-chat; TannusPitch view.html.twig com sidebar TOC navigável (52 itens), scrollspy IntersectionObserver, CTA final destacado (R$ 997.000/18 meses/50-50), dark theme; public/js/tannus-pitch.js; CSS pitch deck adicionado ao design system; HTTP 200 confirmado em todas as 4 rotas |
 | 2.0 | 2026-04-15 | Agent | Task #29: router.php (fix ALL 404s); .env.local (TRUSTED_PROXIES, CORS, locale pt_BR); schema markup JSON-LD (Organization+WebSite+SoftwareApplication); replit.md atualizado (chmod 0555 removido, router.php documentado); ARCHITECTURE.md v2.0; ROADMAP.md v2.0; .env.example atualizado |
+| 2.1 | 2026-04-15 | Agent | Task #28: Chat flutuante IA — TannusChatController, PerplexityApiService, OpenRouterApiService, tannus-chat.js, CSS chat widget, security.yaml PUBLIC_ACCESS, PERPLEXITY_API_KEY + OPENROUTER_API_KEY como Replit Secrets |
 
 ---
 

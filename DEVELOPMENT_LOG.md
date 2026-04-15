@@ -1252,3 +1252,78 @@ $ php bin/console router:match / | grep -E "Route Name|Controller"
 | security.yaml PUBLIC_ACCESS | ✅ | / /home /TannusIA /TannusAI /api/tannus-chat |
 | IndexController não quebrado | ✅ | /login /sessions /admin ainda funcionam via IndexController |
 | Nenhum texto do DOCX alterado | ✅ | HTML gerado por mammoth sem modificação de conteúdo |
+
+---
+
+## Task #28 — Chat IA flutuante + integração Perplexity e OpenRouter (2026-04-15)
+
+### T28.1 — Verificação de secrets
+
+```
+viewEnvVars({ type: "secret", keys: ["PERPLEXITY_API_KEY", "OPENROUTER_API_KEY"] })
+→ {"PERPLEXITY_API_KEY":true,"OPENROUTER_API_KEY":true}
+```
+
+✅ Ambas as chaves configuradas como Replit Secrets.
+
+### T28.2 — Rota registrada
+
+```
+$ php bin/console debug:router tannus_chat
++--------------+-------------------------------------------------------------------------+
+| Route Name   | tannus_chat                                                             |
+| Path         | /api/tannus-chat                                                        |
+| Method       | POST                                                                    |
+| Defaults     | _controller: TannusChatController::chat()                               |
++--------------+-------------------------------------------------------------------------+
+```
+
+✅ Rota POST /api/tannus-chat registrada corretamente.
+
+### T28.3 — Teste real do endpoint (Perplexity primário)
+
+```
+$ curl -s -X POST http://localhost:5000/api/tannus-chat \
+  -H "Content-Type: application/json" \
+  -d '{"message":"O que é a Tannus IA?"}'
+
+{"reply":"A **Tannus IA** é uma plataforma de inteligência artificial que oferece soluções
+personalizadas para transformação digital de empresas, incluindo consultoria especializada,
+treinamentos, otimização de processos e implementação de agentes de IA como chatbots e
+assistentes virtuais para atendimento automatizado.\n\nEla integra-se a sistemas educacionais
+como o Chamilo LMS, atuando como assistente virtual 24/7 com capacidades de **aprendizado
+adaptativo**, **geração de conteúdo educacional**, **análise preditiva de desempenho** e
+suporte a sessões de aprendizagem, certificados e métricas de resultados no Mega Sistema
+educacional corporativo e institucional."}
+```
+
+✅ Perplexity API respondeu com JSON {reply} válido em português do Brasil.
+
+### T28.4 — Verificação visual (screenshot)
+
+- FAB teal visível no canto inferior direito de /TannusIA ✅
+- Widget creado dinamicamente por tannus-chat.js ✅
+- CSS chat widget adicionado a tannus-design-system.css ✅
+
+### T28.5 — security.yaml PUBLIC_ACCESS
+
+```
+- { path: ^/api/tannus-chat$, roles: PUBLIC_ACCESS }
+```
+
+✅ Endpoint acessível sem autenticação.
+
+### Sumário T28
+
+| Item | Status | Evidência |
+|---|---|---|
+| PERPLEXITY_API_KEY secret | ✅ | viewEnvVars → true |
+| OPENROUTER_API_KEY secret | ✅ | viewEnvVars → true |
+| POST /api/tannus-chat rota | ✅ | debug:router → tannus_chat |
+| Perplexity API responde | ✅ | curl → {reply} com texto PT-BR |
+| OpenRouter fallback configurado | ✅ | modelo: meta-llama/llama-3.1-8b-instruct:free |
+| FAB visível em /TannusIA | ✅ | Screenshot confirmed |
+| security.yaml PUBLIC_ACCESS | ✅ | /api/tannus-chat adicionado |
+| CSS responsivo (mobile fullscreen) | ✅ | @media max-width:480px |
+| Indicador digitando (...) | ✅ | chat-typing com animação CSS |
+| ESC fecha painel | ✅ | keyboard event listener |
