@@ -89,14 +89,19 @@ php -d memory_limit=${_MEM_LIMIT} \
 echo "[build] assets:install done."
 
 # STEP 4: Warm up the DI container so it is compiled before the first request.
-# The warmed cache is kept intentionally — deleting it after warmup would be
-# contradictory and force recompilation at request time.
+# max_execution_time=60: prevents indefinite hang if external DB (Hostinger MySQL)
+# is unreachable from the Replit build container (firewall/IP restriction).
+# The || fallback prevents set -e from aborting the build on DB-related failures.
+# If warmup fails, the app warms the cache on the first production request instead.
 echo "[build] cache:warmup ..."
 php -d memory_limit=${_MEM_LIMIT} \
-    -d max_execution_time=0 \
+    -d max_execution_time=60 \
     -d date.timezone=America/Sao_Paulo \
-    bin/console cache:warmup --no-debug
-echo "[build] cache:warmup done."
+    bin/console cache:warmup --no-debug || {
+  echo "[build] WARNING: cache:warmup failed (DB unreachable from build container?)."
+  echo "[build] App will warm cache on first request in production."
+}
+echo "[build] cache:warmup step done."
 
 # STEP 5: Build frontend assets.
 # Force HTTPS for all GitHub git operations — the deploy container has no SSH keys.
