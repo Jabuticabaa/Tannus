@@ -15,6 +15,9 @@ echo "[prod] Starting Chamilo 2.x (APP_ENV=${APP_ENV:-prod}, port=${_PORT})"
 mkdir -p var/log var/cache var/themes var/templates
 chmod 0775 var/log var/cache 2>/dev/null || true
 
+# TRUSTED_PROXIES=0.0.0.0/0 is set as production env var.
+# Replit routes ALL traffic through its mTLS proxy; no public CIDR list is available.
+# This is safe because the proxy terminates TLS and the container is not directly reachable.
 if [ -n "$PHP_INI_SCAN_DIR" ]; then
   echo "[prod] PHP_INI_SCAN_DIR: ${PHP_INI_SCAN_DIR}"
 fi
