@@ -63,6 +63,8 @@ vendor
 /config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
 /var/
+!/var/themes/
+!/var/templates/
 /vendor/
 ###< symfony/framework-bundle ###
 ###> symfony/phpunit-bridge ###
@@ -74,7 +76,6 @@ vendor
 /node_modules/
 /public/assets/
 /public/build/
-/public/js/
 npm-debug.log
 yarn-error.log
 ###< symfony/webpack-encore-bundle ###

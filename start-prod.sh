@@ -12,8 +12,8 @@ _PORT="${PORT:-5000}"
 echo "[prod] Starting Chamilo 2.x (APP_ENV=${APP_ENV:-prod}, port=${_PORT})"
 
 # Ensure runtime-writable directories exist.
-mkdir -p var/log
-chmod 0775 var/log 2>/dev/null || true
+mkdir -p var/log var/cache var/themes var/templates
+chmod 0775 var/log var/cache 2>/dev/null || true
 
 echo "[prod] Starting PHP built-in server on 0.0.0.0:${_PORT} ..."
 exec php \

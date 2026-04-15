@@ -43,6 +43,9 @@ timeoutMs = 120000
 [userenv.production]
 APP_INSTALLED = "1"
 APP_ENV = "prod"
+TRUSTED_PROXIES = "0.0.0.0/0"
+CORS_ALLOW_ORIGIN = '^https?://(.+\.replit\.dev|.+\.replit\.app|localhost|127\.0\.0\.1)(:[0-9]+)?$'
+APP_LOCALE = "pt_BR"
 
 [userenv.shared]
 PHP_MEMORY_LIMIT = "512M"
