@@ -1,6 +1,6 @@
 doctrine:
     dbal:
-        server-version: 'mariadb-10.4.14'
+        server_version: '8.0'
         dbname: '%env(DATABASE_NAME)%'
         user: '%env(DATABASE_USER)%'
         password: '%env(DATABASE_PASSWORD)%'
@@ -10,6 +10,7 @@ doctrine:
         charset: utf8mb4
         options:
             1002: "SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))"
+            1001: 5
         default_table_options:
             charset: utf8mb4
             collate: utf8mb4_unicode_ci

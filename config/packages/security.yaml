@@ -129,6 +129,7 @@ security:
                 - Chamilo\CoreBundle\Security\Authenticator\Ldap\LdapAuthenticator
 
     access_control:
+        - { path: ^/health$, roles: PUBLIC_ACCESS }
         - { path: ^/$, roles: PUBLIC_ACCESS }
         - { path: ^/home(/|$), roles: PUBLIC_ACCESS }
         - { path: ^/TannusAI(/|$), roles: PUBLIC_ACCESS }
